@@ -1,0 +1,146 @@
+/* Our own styles. Bootstrap (loaded in base.html) does most of the work.
+   The colours below match our website. Change --brand to recolour the whole app. */
+:root {
+  --brand: #1d5bd6;
+  --brand-dark: #1748a8;
+  --navy: #0b1f3a;
+  --mint: #6ee7b7;
+  --ink: #0f172a;
+  --muted: #64748b;
+  --page-bg: #f4f6fb;
+  --good: #15803d;
+  --bad: #b42318;
+  --font-ui: "Plus Jakarta Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  --bs-primary: var(--brand);
+  --bs-primary-rgb: 29, 91, 214;
+  --bs-link-color: var(--brand);
+  --bs-link-hover-color: var(--brand-dark);
+  --bs-body-font-family: var(--font-ui);
+  --bs-body-color: var(--ink);
+  --bs-border-radius: .75rem;
+}
+
+body { background: var(--page-bg); }
+h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5 { letter-spacing: -0.02em; font-weight: 700; }
+.text-secondary { color: var(--muted) !important; }
+
+.btn { font-weight: 600; border-radius: .6rem; }
+.btn-primary { --bs-btn-bg: var(--brand); --bs-btn-border-color: var(--brand);
+               --bs-btn-hover-bg: var(--brand-dark); --bs-btn-hover-border-color: var(--brand-dark);
+               --bs-btn-active-bg: var(--brand-dark); --bs-btn-active-border-color: var(--brand-dark);
+               --bs-btn-disabled-bg: var(--brand); --bs-btn-disabled-border-color: var(--brand); }
+.btn-outline-primary { --bs-btn-color: var(--brand); --bs-btn-border-color: var(--brand);
+                       --bs-btn-hover-bg: var(--brand); --bs-btn-hover-border-color: var(--brand);
+                       --bs-btn-active-bg: var(--brand); --bs-btn-active-border-color: var(--brand); }
+.btn-mint { --bs-btn-bg: var(--mint); --bs-btn-border-color: var(--mint); --bs-btn-color: var(--navy);
+            --bs-btn-hover-bg: #5ad9a8; --bs-btn-hover-border-color: #5ad9a8; --bs-btn-hover-color: var(--navy);
+            --bs-btn-active-bg: #5ad9a8; --bs-btn-active-border-color: #5ad9a8; --bs-btn-active-color: var(--navy); }
+
+.card { border: 1px solid #e3e8f2; border-radius: 1rem; box-shadow: 0 1px 2px rgba(15, 23, 42, .04); }
+.form-control, .form-select { border-radius: .6rem; }
+.form-control:focus, .form-select:focus { border-color: var(--brand); box-shadow: 0 0 0 .2rem rgba(29, 91, 214, .15); }
+
+/* ---------- Navigation ---------- */
+.app-nav { background: #fff; border-bottom: 1px solid #e3e8f2; }
+.navbar-brand { font-weight: 800; letter-spacing: -0.02em; color: var(--ink); display: flex; align-items: center; gap: .55rem; }
+.brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem;
+              background: var(--navy); color: #fff; border-radius: .55rem; font-size: 1rem; }
+.brand-accent { color: var(--brand); }
+.app-nav .nav-link { color: #475569; font-weight: 600; font-size: .92rem; }
+.app-nav .nav-link:hover { color: var(--brand); }
+.app-nav .nav-link.active { color: var(--brand); }
+.lock-tag { margin-left: .3rem; font-size: .7rem; color: #94a3b8; }
+.plan-pill { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase;
+             background: #eaf0fd; color: var(--brand); border-radius: 999px; padding: .25rem .6rem; text-decoration: none; }
+
+/* ---------- Small labels ---------- */
+.eyebrow { font-family: var(--font-mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--brand); }
+.hero-dark .eyebrow { color: #9db9f0; }
+.tag { display: inline-block; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .08em;
+       text-transform: uppercase; padding: .22rem .6rem; border-radius: .5rem; }
+.tag-demo { background: #fef3c7; color: #92400e; }
+.tag-risk { background: #fde8e8; color: var(--bad); }
+.tag-ok { background: #dcfce7; color: var(--good); }
+
+/* ---------- Landing page ---------- */
+.hero-dark { background-color: var(--navy); color: #fff;
+             background-image: linear-gradient(rgba(255, 255, 255, .045) 1px, transparent 1px),
+                               linear-gradient(90deg, rgba(255, 255, 255, .045) 1px, transparent 1px);
+             background-size: 48px 48px; padding: 4rem 0; }
+.hero-dark h1 { font-size: clamp(2.1rem, 5vw, 3.3rem); line-height: 1.08; font-weight: 800; }
+.hero-dark .lead { color: #c7d4ec; max-width: 34rem; }
+.demo-card { background: #fff; color: var(--ink); border-radius: 1.1rem; padding: 1.25rem; box-shadow: 0 24px 60px rgba(0, 0, 0, .35); }
+.avatar { width: 2.4rem; height: 2.4rem; border-radius: 50%; background: #eaf0fd; color: var(--brand);
+          display: inline-flex; align-items: center; justify-content: center; font-weight: 700; font-size: .85rem; }
+.mini-kpi { background: #f6f8fc; border-radius: .7rem; padding: .7rem .85rem; }
+.mini-kpi .label { font-size: .72rem; color: var(--muted); }
+.mini-kpi .value { font-weight: 700; font-size: 1.05rem; }
+.section-title { font-size: clamp(1.7rem, 3.6vw, 2.5rem); font-weight: 800; letter-spacing: -0.03em; }
+.feature-card .icon { width: 2.6rem; height: 2.6rem; border-radius: .7rem; background: #eaf0fd; color: var(--brand);
+                      display: inline-flex; align-items: center; justify-content: center; font-size: 1.2rem; margin-bottom: .9rem; }
+.plan-card { height: 100%; padding: 1.5rem; }
+.plan-card .price { font-size: 2.2rem; font-weight: 800; letter-spacing: -0.03em; }
+.plan-card .price small { font-size: .9rem; font-weight: 600; color: var(--muted); }
+.plan-card ul { list-style: none; padding: 0; margin: 1rem 0 1.5rem; color: #475569; }
+.plan-card li { padding: .22rem 0; }
+.plan-card li::before { content: "\2713"; color: var(--brand); font-weight: 700; margin-right: .5rem; }
+.plan-dark { background: var(--navy); color: #fff; border-color: var(--navy); }
+.plan-dark .price small, .plan-dark ul { color: #c7d4ec; }
+.plan-dark li::before { color: var(--mint); }
+.plan-current { outline: 3px solid var(--brand); outline-offset: -2px; }
+.plan-dark.plan-current { outline-color: var(--mint); }
+
+/* ---------- Forms ---------- */
+.auth-card { max-width: 420px; }
+.form-card { max-width: 640px; }
+
+/* ---------- Dashboard and lists ---------- */
+.kpi-card { transition: transform .1s ease; }
+.kpi-label { font-size: .78rem; color: var(--muted); font-weight: 600; }
+.kpi-value { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.2; }
+.kpi-value.good { color: var(--good); }
+.kpi-value.bad { color: var(--bad); }
+.chart-box { position: relative; height: 320px; }
+.event-row { display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+             padding: .6rem 0; border-bottom: 1px solid #eef1f7; }
+.event-row:last-child { border-bottom: 0; }
+.event-in { color: var(--good); font-weight: 700; }
+.event-out { color: var(--ink); font-weight: 700; }
+.table > :not(caption) > * > * { padding-top: .8rem; padding-bottom: .8rem; }
+.table th { font-size: .74rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+.amount { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.badge-status { font-weight: 600; }
+.status-unpaid { background: #e0e7ff; color: #3730a3; }
+.status-paid { background: #dcfce7; color: var(--good); }
+.status-overdue { background: #fde8e8; color: var(--bad); }
+.badge-soft { background: #eef1f7; color: #475569; font-weight: 600; }
+.range-value { font-weight: 700; color: var(--brand); }
+.code-chip { font-family: var(--font-mono); background: #eef1f7; padding: .2rem .5rem; border-radius: .4rem; }
+.locked-card { max-width: 560px; }
+
+footer.app-footer { color: var(--muted); }
+
+@media print {
+  .app-nav, .no-print, footer.app-footer, .alert { display: none !important; }
+  body { background: #fff; }
+  .card { box-shadow: none; }
+}
+
+/* ---------- Added for the Vercel + Supabase version ---------- */
+.empty-hide:empty { display: none; }
+.trial-chip { display: inline-block; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .06em;
+              text-transform: uppercase; background: #e7fbf2; color: #0f6b4c; border-radius: .5rem; padding: .22rem .6rem; }
+.plan-dark .trial-chip { background: rgba(110, 231, 183, .18); color: var(--mint); }
+.plan-note { font-size: .78rem; color: var(--muted); text-align: center; margin-top: .5rem; }
+.plan-dark .plan-note { color: #c7d4ec; }
+.plan-option { cursor: pointer; }
+.plan-option input { position: absolute; opacity: 0; pointer-events: none; }
+.plan-option .card { transition: border-color .1s ease, box-shadow .1s ease; }
+.plan-option input:checked + .card { border-color: var(--brand); box-shadow: 0 0 0 .2rem rgba(29, 91, 214, .15); }
+.plan-option input:focus-visible + .card { outline: 2px solid var(--brand); outline-offset: 2px; }
+.btn-link-inline { padding: 0; border: 0; background: none; color: var(--brand); font-weight: 600; text-decoration: underline; }
+.tag-mint { background: rgba(110, 231, 183, .2); color: var(--mint); }
+.min-w-0 { min-width: 0; }
+.btn-mint { --bs-btn-disabled-bg: var(--mint); --bs-btn-disabled-border-color: var(--mint); --bs-btn-disabled-color: var(--navy); }

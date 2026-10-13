@@ -1,0 +1,10 @@
+{
+  "name": "sme-cashflow",
+  "private": true,
+  "type": "module",
+  "description": "SME CashFlow: cash-flow forecasting for Malaysian micro-SMEs (static site + Supabase).",
+  "scripts": {
+    "test": "node tests/run.mjs",
+    "start": "python3 -m http.server 8000"
+  }
+}
