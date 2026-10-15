@@ -23,7 +23,7 @@ function planCard(key) {
   }[key];
   return html`<div class="col-lg-4"><div class="card plan-card d-flex flex-column ${key === "premium" ? "plan-dark" : ""}">
     ${key === "premium" ? html`<div><span class="tag tag-mint">${t("Most complete")}</span></div>` : ""}
-    <div class="mt-2">${plan.label}</div>
+    <div class="mt-2">${t(plan.label)}</div>
     <div class="price">${plan.price}<small>${t("/month")}</small></div>
     ${key === "premium" ? html`<div><span class="trial-chip">${t("First month free")}</span></div>` : ""}
     <ul class="flex-grow-1">${plan.highlights.map((line) => html`<li>${t(line)}</li>`)}</ul>
