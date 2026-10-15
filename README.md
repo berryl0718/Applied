@@ -24,9 +24,12 @@ BFM3130 Entrepreneurship in FinTech · group assignment prototype.
 | Team access: prepare an invite code for a team member (prototype: no email is sent) | Premium |
 | **1-month free trial of Premium** (once per account), then RM39.90/month | Premium |
 | One-click demo business "Dapur Seri" (Petaling Jaya): RM2,960 cash, +RM12,722 income, RM4,082 at day 30, a dip to -RM2,168 | All |
+| **English / Bahasa Melayu**: an **EN \| BM** switch in the menu on every page (remembered in the browser) | All |
 
 Plans: **Free RM0**, **Basic RM19.90/month** (no trial), **Premium RM39.90/month** (first month free).
 This is a prototype, so no payment is ever taken and you can switch plans in Settings.
+
+**Why the lowest point differs from our website:** the app and the website show the same current cash, 30-day income and 30-day end balance. The website's demo dashboard uses its own assumptions, mainly that customers pay sent invoices **3 days after the due date**, so its low point is -RM810. The app expects each invoice **on its due date**, so its low point is -RM2,168. To see the effect of late payments in the app, use **Scenarios** (Premium) and set "Customers pay late by".
 
 ---
 
@@ -112,7 +115,9 @@ js/supabase-client.js    ← connects to Supabase
 js/db.js                 ← every database and login call, in one place
 js/cashflow.js           ← money, dates, the forecast and CSV reading (pure logic, tested)
 js/plans.js              ← plans, the free trial, the demo business (tested)
-js/ui.js                 ← menu, messages, safe HTML, the chart, the login check
+js/ui.js                 ← menu (with the EN | BM switch), messages, safe HTML, the chart, the login check
+js/i18n.js               ← English / Bahasa Melayu: t("...") picks the chosen language
+js/i18n-ms.js            ← every Bahasa Melayu translation (English sentence -> Malay sentence)
 js/pages/*.js            ← one script per page
 supabase/schema.sql      ← tables, security rules and database functions (Step 2)
 tests/                   ← automatic tests (open /tests/ in the browser)
@@ -131,4 +136,19 @@ vercel.json              ← security headers for Vercel
 
 **Honest limits (prototype):** no real payments, no emails for team invites, team members can't log in yet, and forecasts are estimates, not financial advice.
 
-**Who did what:** _(fill in your team's names and roles)_
+**Languages:** every sentence on screen is written in English inside `t("...")`, and `js/i18n-ms.js` holds its Malay version. The **EN | BM** button saves the choice in the browser and reloads the page. Saved data (categories, plans, what users type) is stored the same way in both languages, so switching never changes the database. A test fails if any sentence is missing its Malay translation. To change a translation, edit the right-hand text in `js/i18n-ms.js`.
+
+**Who did what:**
+
+| Member | Role | BMC Excel | Written report | Presentation |
+|---|---|---|---|---|
+| Camellia | CEO | Market Research, Market Segments, Channel Research | A. Introduction & Project Continuity; part of B. Market Research; C. Customer Segments & Channels | Introduction, market opportunity, target customers and channels |
+| Kailin | Market Research | Primary Market Research, Survey Analysis | B. Primary Market Research: methodology, findings and interpretations | Survey findings, customer pains, gains and adoption intentions |
+| Erynn and Berryl | CTO | SWOT Analysis, Value Proposition | C. Value Proposition, competitive differentiation; F. App concept and features | Value proposition, innovative features and competitor advantages |
+| Xing Yi | Legal Member 1 | Key Resources | E. Business Registration, FinTech Licensing and Regulatory Authorities; C. Key Resources | Key resources, business infrastructure and regulatory requirements |
+| Chloe | Legal Member 2 | Key Partnerships (in key resources sheet), Business Summary | E. PDPA, AML/KYC applicability and consumer protection; C. Key Partnerships | Key partnerships, customer trust, data protection and compliance |
+| Yung Sang | CFO | Revenue Streams, Cost Structure, Variable Costs | D. Revenue assumptions, operating costs and profitability; C. Update the difference of BMC | Subscription pricing, projected revenue and cost structure |
+| Dylan | Finance | Pro Forma Income Statement, Break-even, FCFF Valuation | D. Break-even analysis, 36-month FCFF valuation and funding strategy; C. Update the difference of BMC | Financial feasibility, valuation and funding |
+| Berryl and Erynn | IT | Technology resources, app development assumptions and technical cost inputs | F. App Development, technical architecture, testing and implementation | App architecture, prototype and live demonstration |
+
+The app (this repository: design, Supabase backend, Vercel deployment, tests and the live demo) is the IT members' part: **Berryl and Erynn**.

@@ -48,7 +48,13 @@ h1, h2, h3, h4, .h1, .h2, .h3, .h4, .h5 { letter-spacing: -0.02em; font-weight: 
 .brand-mark { display: inline-flex; align-items: center; justify-content: center; width: 2rem; height: 2rem;
               background: var(--navy); color: #fff; border-radius: .55rem; font-size: 1rem; }
 .brand-accent { color: var(--brand); }
-.app-nav .nav-link { color: #475569; font-weight: 600; font-size: .92rem; }
+.app-nav .nav-link { color: #475569; font-weight: 600; font-size: .92rem; white-space: nowrap; }
+.app-nav .btn, .plan-pill { white-space: nowrap; }
+.lang-switch .btn { font-weight: 700; font-size: .72rem; padding: .2rem .5rem; }
+@media (min-width: 1400px) {
+  .app-nav .navbar-nav .nav-link { padding-left: .45rem; padding-right: .45rem; }
+  .app-nav .plan-pill { letter-spacing: .02em; }
+}
 .app-nav .nav-link:hover { color: var(--brand); }
 .app-nav .nav-link.active { color: var(--brand); }
 .lock-tag { margin-left: .3rem; font-size: .7rem; color: #94a3b8; }

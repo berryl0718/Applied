@@ -28,6 +28,7 @@ Open http://localhost:8000. The automatic tests are at http://localhost:8000/tes
 - [ ] Register a second account: it can't see the first account's data, and it can start its own trial once.
 - [ ] Settings, then **Clear all my data**: everything is removed and cash goes back to RM0.
 - [ ] Phone check (open the Vercel link on your phone): nothing scrolls sideways and the menu opens.
+- [ ] Language: click **BM** in the menu. Every page (menu, dashboard, forms, messages, dates like "27 Okt") is in Bahasa Melayu, and it stays in Malay on the next page and after logging out and in. Click **EN** to switch back. Your invoices, expenses and plan don't change.
 
 ## Teacher questions and model answers
 1. **Why Vercel and Supabase?** Vercel hosts the web pages for free with a public https link and redeploys automatically on every GitHub push. Supabase gives us login, a real Postgres database and security rules for free, so we don't run our own server.
@@ -36,6 +37,8 @@ Open http://localhost:8000. The automatic tests are at http://localhost:8000/tes
 4. **Why store money in sen (integers)?** Decimals like 0.1 can't be stored exactly by computers (0.1 + 0.2 = 0.30000000000000004). Whole sen are exact, so totals never drift.
 5. **How is the forecast calculated?** Start with current cash. Each day, add invoices due that day and subtract expenses due that day; weekly and monthly ones repeat, and overdue invoices count as arriving today. The lowest balance is the low point, and any day below RM0 is a shortfall. Code: `buildForecast` in `js/cashflow.js`.
 6. **Why review uploaded files before using them?** A wrong file could quietly ruin the forecast. Rows wait in `import_rows` until the user ticks them, and likely duplicates start unticked.
+7. **How does the English / Bahasa Melayu switch work?** Every sentence is written in English inside `t("...")`. When BM is chosen, `t()` looks the sentence up in `js/i18n-ms.js` and shows the Malay version, falling back to English if one is missing. The choice is saved in the browser (`localStorage`). Only the screen text changes: saved data stays the same, so both languages share one database. An automatic test checks that every sentence has a translation.
+8. **Why is the app's low point (-RM2,168) different from the website's (-RM810)?** Same cash, income and end balance, but the website's demo uses its own assumptions (mainly that invoices are paid 3 days late), while the app expects them on the due date. The Scenarios page shows how late payments move the low point.
 
 ## Honest limits
 Payments, emails and team log-in are prototypes only. Forecasts are estimates, not financial advice.

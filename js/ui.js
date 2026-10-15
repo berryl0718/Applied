@@ -4,6 +4,9 @@ import { isConfigured, supabase } from "./supabase-client.js";
 import { friendlyError, getProfile, getSession, signOut } from "./db.js";
 import { APP_NAME, PLANS, planFor, trialStatus } from "./plans.js";
 import { formatRM, prettyDate } from "./cashflow.js";
+import { LANG_NAMES, LANGS, getLang, plural, setLang, t } from "./i18n.js";
+
+export { t, plural };
 
 // ---------------------------------------------------------------------------
 // Safe HTML. Anything a user typed (a customer name, say) could contain
@@ -33,6 +36,13 @@ export function html(strings, ...values) {
   let out = strings[0];
   values.forEach((value, i) => { out += renderValue(value) + strings[i + 1]; });
   return new SafeHtml(out);
+}
+
+/** Translate a sentence that contains our own HTML (like <strong>), filling in
+ *  its {blanks} safely: the blanks are escaped like any other ${value}. */
+export function th(text, vars = {}) {
+  const safeVars = Object.fromEntries(Object.entries(vars).map(([name, value]) => [name, renderValue(value)]));
+  return raw(t(text, safeVars));
 }
 
 /** Put safe HTML into an element (by id or element). */
@@ -65,8 +75,6 @@ export function malaysiaDate(moment) {
 export function param(name) {
   return new URLSearchParams(window.location.search).get(name) ?? "";
 }
-
-export const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
 /** Disable a button while something runs, and show any error as a message. */
 export async function busy(button, task) {
@@ -105,7 +113,7 @@ export function showMessage(message, type = "success") {
   const close = document.createElement("button");
   close.type = "button";
   close.className = "btn-close";
-  close.setAttribute("aria-label", "Close");
+  close.setAttribute("aria-label", t("Close"));
   close.addEventListener("click", () => alert.remove());
   alert.append(close);
   box.append(alert);
@@ -143,13 +151,13 @@ export function goTo(page, message, type) {
 // The top menu
 // ---------------------------------------------------------------------------
 const MENU = [
-  { page: "dashboard", label: "Dashboard" },
-  { page: "invoices", label: "Invoices" },
-  { page: "expenses", label: "Expenses" },
-  { page: "import", label: "Import" },
-  { page: "scenarios", label: "Scenarios", feature: "scenarios" },
-  { page: "reports", label: "Reports", feature: "summaries" },
-  { page: "team", label: "Team", feature: "team" },
+  { page: "dashboard", label: t("Dashboard") },
+  { page: "invoices", label: t("Invoices") },
+  { page: "expenses", label: t("Expenses") },
+  { page: "import", label: t("Import") },
+  { page: "scenarios", label: t("Scenarios"), feature: "scenarios" },
+  { page: "reports", label: t("Reports"), feature: "summaries" },
+  { page: "team", label: t("Team"), feature: "team" },
 ];
 
 const BRAND = html`<a class="navbar-brand" href="index.html">
@@ -157,31 +165,53 @@ const BRAND = html`<a class="navbar-brand" href="index.html">
   <span>SME <span class="brand-accent">CashFlow</span></span></a>`;
 
 const TOGGLER = raw(`<button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
-  data-bs-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="Open the menu">
+  data-bs-target="#mainMenu" aria-controls="mainMenu" aria-expanded="false" aria-label="${esc(t("Open the menu"))}">
   <span class="navbar-toggler-icon"></span></button>`);
 
 export function planBadgeText(profile) {
   const trial = trialStatus(profile);
   const plan = planFor(profile);
-  return trial.active ? `${plan.label} trial · ${plural(trial.daysLeft, "day")} left` : plan.label;
+  return trial.active ? t("{plan} trial · {days} left", { plan: plan.label, days: plural(trial.daysLeft, "day") }) : plan.label;
+}
+
+/** The EN | BM switch. Picking a language saves it and reloads the page in that language. */
+function languageSwitch() {
+  return html`<div class="btn-group btn-group-sm lang-switch" role="group" aria-label="${t("Language")}">${LANGS.map((lang) => html`
+    <button type="button" class="btn ${lang === getLang() ? "btn-secondary" : "btn-outline-secondary"}" data-lang="${lang}"
+      lang="${lang}" title="${LANG_NAMES[lang]}" aria-pressed="${lang === getLang() ? "true" : "false"}">${lang === "ms" ? "BM" : "EN"}</button>`)}
+  </div>`;
+}
+
+function wireLanguageSwitch(nav) {
+  nav.querySelectorAll("button[data-lang]").forEach((button) => button.addEventListener("click", () => {
+    if (button.dataset.lang === getLang()) return;
+    setLang(button.dataset.lang);
+    window.location.reload();
+  }));
 }
 
 function renderNav(current, profile) {
   const nav = document.getElementById("nav");
   if (!nav) return;
+  // The logged-in menu is long (and Malay words are longer), so it only spreads
+  // out in one row on wide screens (1400px+); narrower screens get the ☰ button.
+  nav.classList.toggle("navbar-expand-lg", !profile);
+  nav.classList.toggle("navbar-expand-xxl", Boolean(profile));
   if (!profile) {
     show(nav, html`<div class="container">${BRAND}${TOGGLER}
       <div class="collapse navbar-collapse" id="mainMenu">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-          <li class="nav-item"><a class="nav-link" href="index.html#features">Features</a></li>
-          <li class="nav-item"><a class="nav-link" href="index.html#pricing">Pricing</a></li>
-          <li class="nav-item"><a class="nav-link" href="index.html#support">Support</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#features">${t("Features")}</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#pricing">${t("Pricing")}</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#support">${t("Support")}</a></li>
         </ul>
-        <div class="d-flex align-items-center gap-2 pb-2 pb-lg-0">
-          <a class="btn btn-sm btn-outline-primary" href="login.html">Log in</a>
-          <a class="btn btn-sm btn-primary" href="register.html">Get Started</a>
+        <div class="d-flex flex-wrap align-items-center gap-2 pb-2 pb-lg-0">
+          ${languageSwitch()}
+          <a class="btn btn-sm btn-outline-primary" href="login.html">${t("Log in")}</a>
+          <a class="btn btn-sm btn-primary" href="register.html">${t("Get Started")}</a>
         </div>
       </div></div>`);
+    wireLanguageSwitch(nav);
     return;
   }
   const plan = planFor(profile);
@@ -189,20 +219,22 @@ function renderNav(current, profile) {
     const locked = item.feature && !plan[item.feature];
     return html`<li class="nav-item"><a class="nav-link ${item.page === current ? "active" : ""}"
       ${raw(item.page === current ? 'aria-current="page"' : "")} href="${item.page}.html">${item.label}${locked
-        ? html`<i class="bi bi-lock-fill lock-tag" title="Not on your plan"></i>` : ""}</a></li>`;
+        ? html`<i class="bi bi-lock-fill lock-tag" title="${t("Not on your plan")}"></i>` : ""}</a></li>`;
   });
   show(nav, html`<div class="container">${BRAND}${TOGGLER}
     <div class="collapse navbar-collapse" id="mainMenu">
-      <ul class="navbar-nav me-auto mb-2 mb-lg-0">${items}</ul>
-      <div class="d-flex align-items-center gap-2 pb-2 pb-lg-0">
-        <a class="plan-pill" href="settings.html#plan" title="Change plan">${planBadgeText(profile)}</a>
-        <a class="btn btn-sm btn-outline-primary ${current === "settings" ? "active" : ""}" href="settings.html">Settings</a>
-        <button class="btn btn-sm btn-outline-secondary" type="button" id="logout-button">Log out</button>
+      <ul class="navbar-nav me-auto mb-2 mb-xxl-0">${items}</ul>
+      <div class="d-flex flex-wrap align-items-center gap-2 pb-2 pb-xxl-0">
+        ${languageSwitch()}
+        <a class="plan-pill" href="settings.html#plan" title="${t("Change plan")}">${planBadgeText(profile)}</a>
+        <a class="btn btn-sm btn-outline-primary ${current === "settings" ? "active" : ""}" href="settings.html">${t("Settings")}</a>
+        <button class="btn btn-sm btn-outline-secondary" type="button" id="logout-button">${t("Log out")}</button>
       </div>
     </div></div>`);
+  wireLanguageSwitch(nav);
   document.getElementById("logout-button").addEventListener("click", async () => {
     await signOut();
-    goTo("index.html", "You have been logged out.", "info");
+    goTo("index.html", t("You have been logged out."), "info");
   });
 }
 
@@ -213,14 +245,14 @@ function renderNav(current, profile) {
 // logged-out visitors to the login page. Returns {session, profile, plan, trial, userId}.
 // ---------------------------------------------------------------------------
 export async function startPage(current, { login = false } = {}) {
+  translateShell();
   showQueuedMessages();
   if (!isConfigured) {
     renderNav(current, null);
     show("main", html`<div class="card p-4 mx-auto form-card">
-      <h1 class="h4">Almost there: connect Supabase</h1>
-      <p class="text-secondary mb-2">This copy of ${APP_NAME} is not connected to a database yet.</p>
-      <p class="mb-0">Open <code>js/config.js</code> and paste in your Supabase project URL and
-      publishable (anon) key. The README explains where to find them.</p></div>`);
+      <h1 class="h4">${t("Almost there: connect Supabase")}</h1>
+      <p class="text-secondary mb-2">${t("This copy of {app} is not connected to a database yet.", { app: APP_NAME })}</p>
+      <p class="mb-0">${th("Open <code>js/config.js</code> and paste in your Supabase project URL and publishable (anon) key. The README explains where to find them.")}</p></div>`);
     throw new PageStopped();
   }
 
@@ -237,8 +269,8 @@ export async function startPage(current, { login = false } = {}) {
       profile = await getProfile();
     } catch (error) {
       renderNav(current, null);
-      show("main", html`<div class="alert alert-danger">We couldn't load your account: ${friendlyError(error)}
-        <br>If you just set up Supabase, check that you ran <code>supabase/schema.sql</code>.</div>`);
+      show("main", html`<div class="alert alert-danger">${t("We couldn't load your account: {error}", { error: friendlyError(error) })}
+        <br>${th("If you just set up Supabase, check that you ran <code>supabase/schema.sql</code>.")}</div>`);
       throw new PageStopped();
     }
   }
@@ -258,6 +290,18 @@ export async function startPage(current, { login = false } = {}) {
   };
 }
 
+/** The parts of every page that are written in the .html files: the page
+ *  language, the "Loading..." text and the footer. */
+function translateShell() {
+  document.documentElement.lang = getLang();
+  const footer = document.querySelector(".app-footer .container");
+  if (footer) {
+    footer.textContent = t("SME CashFlow · Forecasts are estimates based on the numbers you enter. They are not bookkeeping, tax or financial advice.");
+  }
+  const loading = document.querySelector("#main > p.text-secondary");
+  if (loading) loading.textContent = t("Loading…");
+}
+
 /** Thrown to stop a page script quietly (for example while redirecting). */
 export class PageStopped extends Error {}
 
@@ -274,13 +318,13 @@ export function runPage(main) {
 export function lockedCard(featureName, neededPlan, plan) {
   return html`<div class="card p-4 text-center mx-auto locked-card">
     <div class="display-6 text-secondary"><i class="bi bi-lock-fill"></i></div>
-    <h1 class="h4 mt-2">${featureName} is on the ${neededPlan} plan</h1>
-    <p class="text-secondary">You are on the <strong>${plan.label}</strong> plan.
-      ${neededPlan === "Premium" ? "Premium comes with a 1-month free trial. " : ""}Switch plan in Settings to unlock this page.
-      It is a prototype, so no payment is taken.</p>
+    <h1 class="h4 mt-2">${t("{feature} is on the {plan} plan", { feature: featureName, plan: neededPlan })}</h1>
+    <p class="text-secondary">${th("You are on the <strong>{plan}</strong> plan.", { plan: plan.label })}
+      ${neededPlan === "Premium" ? t("Premium comes with a 1-month free trial.") : ""}
+      ${t("Switch plan in Settings to unlock this page. It is a prototype, so no payment is taken.")}</p>
     <div class="d-flex justify-content-center gap-2 flex-wrap">
-      <a class="btn btn-primary" href="settings.html#plan">See plans</a>
-      <a class="btn btn-outline-secondary" href="dashboard.html">Back to dashboard</a>
+      <a class="btn btn-primary" href="settings.html#plan">${t("See plans")}</a>
+      <a class="btn btn-outline-secondary" href="dashboard.html">${t("Back to dashboard")}</a>
     </div></div>`;
 }
 
@@ -288,13 +332,13 @@ export function lockedCard(featureName, neededPlan, plan) {
 export function trialBanner(trial, profile) {
   if (trial.active) {
     return html`<div class="alert alert-info d-flex gap-2 align-items-start trial-banner" role="status">
-      <i class="bi bi-gift-fill mt-1"></i><div><strong>Premium free trial: ${plural(trial.daysLeft, "day")} left.</strong>
-      It ends on ${prettyDate(malaysiaDate(trial.endsAt))}. After that, Premium is
-      ${PLANS.premium.price}/month. This is a prototype, so no payment is taken.</div></div>`;
+      <i class="bi bi-gift-fill mt-1"></i><div><strong>${t("Premium free trial: {days} left.", { days: plural(trial.daysLeft, "day") })}</strong>
+      ${t("It ends on {date}. After that, Premium is {price}/month. This is a prototype, so no payment is taken.",
+        { date: prettyDate(malaysiaDate(trial.endsAt)), price: PLANS.premium.price })}</div></div>`;
   }
   if (trial.ended && profile.plan === "premium") {
-    return html`<div class="alert alert-secondary small" role="status">Your free trial has ended.
-      Premium is now ${PLANS.premium.price}/month (prototype: no payment is taken).</div>`;
+    return html`<div class="alert alert-secondary small" role="status">${t("Your free trial has ended. Premium is now {price}/month (prototype: no payment is taken).",
+      { price: PLANS.premium.price })}</div>`;
   }
   return "";
 }
