@@ -4,12 +4,18 @@
 **SME CashFlow**: "Know Your Cash Before It Runs Out."
 
 ## 2. Team
-| Name | Role (e.g. Team lead, Backend, Frontend/Design, Tester, Docs) |
-|------|------|
-| _(add name)_ | Team lead / Docs |
-| _(add name)_ | Backend (`app.py`, `cashflow.py`) |
-| _(add name)_ | Frontend / Design (`templates/`, `static/`) |
-| _(add name)_ | Tester (`tests/`, manual checklist) |
+| Member | Role | BMC Excel | Written report | Presentation |
+|---|---|---|---|---|
+| Camellia | CEO | Market Research, Market Segments, Channel Research | A. Introduction & Project Continuity; part of B. Market Research; C. Customer Segments & Channels | Introduction, market opportunity, target customers and channels |
+| Kailin | Market Research | Primary Market Research, Survey Analysis | B. Primary Market Research: methodology, findings and interpretations | Survey findings, customer pains, gains and adoption intentions |
+| Erynn and Berryl | CTO | SWOT Analysis, Value Proposition | C. Value Proposition, competitive differentiation; F. App concept and features | Value proposition, innovative features and competitor advantages |
+| Xing Yi | Legal Member 1 | Key Resources | E. Business Registration, FinTech Licensing and Regulatory Authorities; C. Key Resources | Key resources, business infrastructure and regulatory requirements |
+| Chloe | Legal Member 2 | Key Partnerships (in key resources sheet), Business Summary | E. PDPA, AML/KYC applicability and consumer protection; C. Key Partnerships | Key partnerships, customer trust, data protection and compliance |
+| Yung Sang | CFO | Revenue Streams, Cost Structure, Variable Costs | D. Revenue assumptions, operating costs and profitability; C. Update the difference of BMC | Subscription pricing, projected revenue and cost structure |
+| Dylan | Finance | Pro Forma Income Statement, Break-even, FCFF Valuation | D. Break-even analysis, 36-month FCFF valuation and funding strategy; C. Update the difference of BMC | Financial feasibility, valuation and funding |
+| Berryl and Erynn | IT | Technology resources, app development assumptions and technical cost inputs | F. App Development, technical architecture, testing and implementation | App architecture, prototype and live demonstration |
+
+The app itself (this repository) is built and demonstrated by the **IT** members, **Berryl and Erynn**.
 
 ## 3. The problem (2–3 sentences)
 Malaysian micro-businesses (food sellers, small shops, service providers) keep their money records scattered across notebooks, chat messages and bank apps. Because of this they are often surprised when cash runs out a few days before a big customer payment arrives. SME CashFlow turns those scattered records into a simple, forward-looking cash-flow forecast, so the owner can see a shortfall coming and act early.
@@ -29,6 +35,7 @@ Owners and staff of Malaysian micro-SMEs. Each business owner has one account an
 1. **Scenario planning** (Premium): "What if customers pay 14 days late?" and "What if we cut costs by 10%?", compared with the normal forecast.
 2. **Team access** (Premium): prepare a demo invite for a team member.
 3. **Demo data**: one click to load "Dapur Seri", a demo food seller in Petaling Jaya, to try the app.
+4. **English / Bahasa Melayu**: an **EN | BM** switch in the menu on every page. The choice is remembered in the browser.
 
 ## 7. What data do we save?
 - **User** (Supabase Auth): email and password (Supabase stores the password safely).

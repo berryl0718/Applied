@@ -6,6 +6,7 @@
 // each user can only see and change their own rows. We still filter by the
 // user where it makes the meaning clearer.
 import { supabase } from "./supabase-client.js";
+import { t } from "./i18n.js";
 
 /** Supabase answers {data, error}. Turn an error into a normal JavaScript error. */
 function check({ data, error }) {
@@ -15,15 +16,15 @@ function check({ data, error }) {
 
 /** Turn database error text into something a business owner can understand. */
 export function friendlyError(error) {
-  const message = String(error?.message || error || "Something went wrong.");
-  if (/invalid login credentials/i.test(message)) return "Wrong email or password.";
-  if (/email not confirmed/i.test(message)) return "Please confirm your email first (check your inbox), then log in.";
-  if (/user already registered/i.test(message)) return "That email already has an account. Try logging in.";
-  if (/password should be at least/i.test(message)) return "Password must be at least 8 characters.";
-  if (/rate limit/i.test(message)) return "Too many attempts. Please wait a minute and try again.";
-  if (/violates check constraint/i.test(message)) return "One of the values is not allowed. Please check the form.";
-  if (/failed to fetch|network/i.test(message)) return "Can't reach the server. Check your internet connection.";
-  return message;
+  const message = String(error?.message || error || t("Something went wrong."));
+  if (/invalid login credentials/i.test(message)) return t("Wrong email or password.");
+  if (/email not confirmed/i.test(message)) return t("Please confirm your email first (check your inbox), then log in.");
+  if (/user already registered/i.test(message)) return t("That email already has an account. Try logging in.");
+  if (/password should be at least/i.test(message)) return t("Password must be at least 8 characters.");
+  if (/rate limit/i.test(message)) return t("Too many attempts. Please wait a minute and try again.");
+  if (/violates check constraint/i.test(message)) return t("One of the values is not allowed. Please check the form.");
+  if (/failed to fetch|network/i.test(message)) return t("Can't reach the server. Check your internet connection.");
+  return message; // already translated by us, or a technical message from Supabase
 }
 
 // ---------------------------------------------------------------------------
@@ -94,7 +95,7 @@ export async function updateInvoice(id, { customer, amount_sen, due_date }) {
   // "status = unpaid": a paid invoice can never be changed by mistake.
   const rows = check(await supabase.from("invoices").update({ customer, amount_sen, due_date })
     .eq("id", id).eq("status", "unpaid").select("id"));
-  if (!rows.length) throw new Error("Paid invoices can't be edited. Delete it and add a new one instead.");
+  if (!rows.length) throw new Error(t("Paid invoices can't be edited. Delete it and add a new one instead."));
 }
 
 /** Mark paid and add the money to current cash (one database step). Returns the amount added. */

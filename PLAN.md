@@ -4,6 +4,7 @@
 - **Browser (frontend):** plain HTML pages, Bootstrap 5 and Chart.js from a CDN, and our JavaScript modules. Hosted for free on **Vercel** as a static site, with no build step.
 - **Supabase (backend):** Auth handles sign-up and log-in with email and password. The **Postgres** database holds the data. **Row Level Security** gives each user only their own rows, and **database functions** handle actions that must happen all-or-nothing.
 - The forecast is calculated in the browser (`js/cashflow.js`) from the user's own invoices and expenses.
+- **English / Bahasa Melayu:** screen text goes through `t()` in `js/i18n.js`, with Malay translations in `js/i18n-ms.js`. The EN | BM choice is kept in the browser's `localStorage`. The database is the same in both languages.
 
 ## Database (`supabase/schema.sql`)
 | Table | What it holds |

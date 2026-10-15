@@ -6,6 +6,11 @@ import {
   DEMO_CASH_SEN, PLANS, clampInt, demoForecast, demoRecords, horizonChoices, pickHorizon, planFor, trialStatus,
 } from "../js/plans.js";
 import { equal, ok, test } from "./harness.js";
+import { MS } from "../js/i18n-ms.js";
+import { getLang, plural, setLang, t } from "../js/i18n.js";
+
+// The tests check English text, whatever language this browser last picked.
+setLang("en", { save: false });
 
 const TODAY = "2026-10-12";
 const day = (n) => cf.addDays(TODAY, n);
@@ -216,4 +221,60 @@ test("free trial: ended", () => {
   const t = trialStatus({ plan: "premium", trial_started_at: "2026-09-01T00:00:00Z", trial_ends_at: "2026-10-01T00:00:00Z" },
     new Date("2026-10-12T00:00:00Z"));
   equal([t.used, t.active, t.ended, t.daysLeft], [true, false, true, 0]);
+});
+
+// ----- English / Bahasa Melayu -----
+/** Run a check in Malay, then switch back to English for the other tests. */
+function inMalay(check) {
+  setLang("ms", { save: false });
+  try { check(); } finally { setLang("en", { save: false }); }
+}
+test("language: English by default, Malay when chosen", () => {
+  equal(getLang(), "en");
+  equal(t("Dashboard"), "Dashboard");
+  equal(t("on {date}", { date: "7 Oct" }), "on 7 Oct");
+  equal(plural(1, "day"), "1 day");
+  equal(plural(3, "day"), "3 days");
+  inMalay(() => {
+    equal(t("Dashboard"), "Papan Pemuka");
+    equal(t("on {date}", { date: "7 Okt" }), "pada 7 Okt");
+    equal(plural(3, "day"), "3 hari"); // Malay has no plural "s"
+    equal(t("A sentence nobody translated"), "A sentence nobody translated"); // falls back to English
+  });
+});
+test("language: Malay dates and CSV messages", () => {
+  inMalay(() => {
+    equal(cf.shortDate("2026-10-07"), "7 Okt");
+    equal(cf.prettyDate("2026-08-27"), "27 Ogo 2026");
+    equal(cf.monthLabel("2026-12"), "Dis 2026");
+    equal(cf.parseImportCsv("").problems, ["Fail ini kosong."]);
+    ok(cf.parseImportCsv("type,description,amount,date\nfoo,X,1,2026-10-20").problems[0].startsWith("Baris 2:"));
+  });
+  equal(cf.shortDate("2026-10-07"), "7 Oct"); // back to English
+});
+test("language: every English sentence has a Malay translation", async () => {
+  // Every file with text on screen. Add new page files here too.
+  const files = ["ui.js", "db.js", "cashflow.js", "plans.js", "pages/dashboard.js", "pages/expenses.js", "pages/home.js",
+    "pages/import.js", "pages/invoices.js", "pages/login.js", "pages/notfound.js", "pages/register.js",
+    "pages/reports.js", "pages/scenarios.js", "pages/settings.js", "pages/team.js"];
+  const read = typeof window === "undefined"
+    ? async (file) => (await import("node:fs")).readFileSync(new URL(`../js/${file}`, import.meta.url), "utf8")
+    : async (file) => (await fetch(`../js/${file}`)).text();
+  const sentences = new Set();
+  for (const file of files) {
+    const source = await read(file);
+    for (const m of source.matchAll(/\bth?\(\s*("(?:[^"\\]|\\.)*")/g)) sentences.add(JSON.parse(m[1]));
+    for (const m of source.matchAll(/\bplural\([^,()]+(?:\([^()]*\))?,\s*("(?:[^"\\]|\\.)*")\)/g)) sentences.add(JSON.parse(m[1]));
+  }
+  // Saved values that are shown translated (categories, repeats, plan features, team roles)
+  const { CATEGORIES, RECURRENCE_LABELS, TEAM_ROLES } = await import("../js/plans.js");
+  [...CATEGORIES, ...Object.values(RECURRENCE_LABELS), ...Object.values(PLANS).flatMap((p) => p.highlights), ...TEAM_ROLES]
+    .forEach((value) => sentences.add(value));
+  ok(sentences.size > 300, `only found ${sentences.size} sentences: is the search still working?`);
+  const missing = [...sentences].filter((sentence) => !MS[sentence]);
+  equal(missing, [], "these sentences need a Malay translation in js/i18n-ms.js");
+  // A translation must keep the same {blanks} and <tags> as the English sentence.
+  const shape = (text) => [...(text.match(/\{\w+\}|<\/?\w+/g) || [])].sort();
+  const broken = Object.entries(MS).filter(([en, ms]) => JSON.stringify(shape(en)) !== JSON.stringify(shape(ms)));
+  equal(broken.map(([en]) => en), [], "these translations lost a {blank} or <tag>");
 });

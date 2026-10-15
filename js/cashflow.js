@@ -9,13 +9,18 @@
 //
 // Dates are kept as text like "2026-10-27" (year-month-day). Text in this form
 // sorts in date order, so "2026-10-03" < "2026-10-27" works as expected.
+import { getLang, t } from "./i18n.js";
 
 export const MAX_AMOUNT_SEN = 1_000_000_000; // RM 10,000,000 (a sanity limit)
 export const IMPORT_MAX_ROWS = 200;
 const REQUIRED_IMPORT_COLUMNS = ["type", "description", "amount", "date"];
 const INCOME_WORDS = new Set(["income", "invoice", "in", "sale"]);
 const EXPENSE_WORDS = new Set(["expense", "bill", "out", "cost"]);
-const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const MONTHS = {
+  en: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+  ms: ["Jan", "Feb", "Mac", "Apr", "Mei", "Jun", "Jul", "Ogo", "Sep", "Okt", "Nov", "Dis"],
+};
+const monthName = (m) => MONTHS[getLang()][m - 1];
 
 // ---------------------------------------------------------------------------
 // Money
@@ -110,20 +115,20 @@ export function addMonths(iso, months) {
 export function prettyDate(iso) {
   if (!parseDate(iso)) return "";
   const [y, m, d] = iso.split("-").map(Number);
-  return `${d} ${MONTHS[m - 1]} ${y}`;
+  return `${d} ${monthName(m)} ${y}`;
 }
 
 /** "2026-10-27" -> "27 Oct" */
 export function shortDate(iso) {
   if (!parseDate(iso)) return "";
   const [, m, d] = iso.split("-").map(Number);
-  return `${d} ${MONTHS[m - 1]}`;
+  return `${d} ${monthName(m)}`;
 }
 
 /** "2026-10" -> "Oct 2026" */
 export function monthLabel(key) {
   const [y, m] = key.split("-").map(Number);
-  return `${MONTHS[m - 1]} ${y}`;
+  return `${monthName(m)} ${y}`;
 }
 
 /** Every day an expense is paid between firstDay and lastDay (both included).
@@ -330,24 +335,24 @@ export function parseCsv(text) {
 /** Read an uploaded CSV file's text.
  *  Returns {rows, problems}:
  *    rows     - good rows: {kind: "income"|"expense", description, amount_sen, row_date}
- *    problems - plain-English messages about rows we had to skip */
+ *    problems - plain messages (in the chosen language) about rows we had to skip */
 export function parseImportCsv(text) {
   text = String(text ?? "").replace(/^﻿/, ""); // remove Excel's hidden first character
   let records;
   try {
     records = parseCsv(text);
   } catch {
-    return { rows: [], problems: ["That file does not look like a valid CSV."] };
+    return { rows: [], problems: [t("That file does not look like a valid CSV.")] };
   }
   records = records.filter((r) => r.fields.some((f) => f.trim() !== ""));
-  if (!records.length) return { rows: [], problems: ["The file is empty."] };
+  if (!records.length) return { rows: [], problems: [t("The file is empty.")] };
 
   const headers = records[0].fields.map((h) => h.trim().toLowerCase());
   const missing = REQUIRED_IMPORT_COLUMNS.filter((name) => !headers.includes(name));
   if (missing.length) {
     return {
       rows: [],
-      problems: [`Missing column(s): ${missing.join(", ")}. The first row must be: type, description, amount, date`],
+      problems: [t("Missing column(s): {columns}. The first row must be: type, description, amount, date", { columns: missing.join(", ") })],
     };
   }
   const column = (name) => headers.indexOf(name);
@@ -356,26 +361,26 @@ export function parseImportCsv(text) {
   const problems = [];
   for (const record of records.slice(1)) {
     if (rows.length >= IMPORT_MAX_ROWS) {
-      problems.push(`Only the first ${IMPORT_MAX_ROWS} rows were read.`);
+      problems.push(t("Only the first {count} rows were read.", { count: IMPORT_MAX_ROWS }));
       break;
     }
     const get = (name) => (record.fields[column(name)] ?? "").trim();
-    const where = `Line ${record.line}`;
+    const where = t("Line {line}", { line: record.line });
 
     const typeWord = get("type").toLowerCase();
     let kind;
     if (INCOME_WORDS.has(typeWord)) kind = "income";
     else if (EXPENSE_WORDS.has(typeWord)) kind = "expense";
-    else { problems.push(`${where}: type must be income or expense.`); continue; }
+    else { problems.push(t("{where}: type must be income or expense.", { where })); continue; }
 
     const description = get("description");
     if (!description || description.length > 80) {
-      problems.push(`${where}: description must be 1-80 characters.`); continue;
+      problems.push(t("{where}: description must be 1-80 characters.", { where })); continue;
     }
     const amountSen = parseAmount(get("amount"));
-    if (amountSen === null) { problems.push(`${where}: amount must be above 0, like 1250.50.`); continue; }
+    if (amountSen === null) { problems.push(t("{where}: amount must be above 0, like 1250.50.", { where })); continue; }
     const rowDate = parseDate(get("date"));
-    if (!rowDate) { problems.push(`${where}: date must look like 2026-10-27.`); continue; }
+    if (!rowDate) { problems.push(t("{where}: date must look like 2026-10-27.", { where })); continue; }
 
     rows.push({ kind, description, amount_sen: amountSen, row_date: rowDate });
   }
