@@ -266,9 +266,9 @@ test("language: every English sentence has a Malay translation", async () => {
     for (const m of source.matchAll(/\bth?\(\s*("(?:[^"\\]|\\.)*")/g)) sentences.add(JSON.parse(m[1]));
     for (const m of source.matchAll(/\bplural\([^,()]+(?:\([^()]*\))?,\s*("(?:[^"\\]|\\.)*")\)/g)) sentences.add(JSON.parse(m[1]));
   }
-  // Saved values that are shown translated (categories, repeats, plan features, team roles)
+  // Saved values that are shown translated (categories, repeats, plan names and features, team roles)
   const { CATEGORIES, RECURRENCE_LABELS, TEAM_ROLES } = await import("../js/plans.js");
-  [...CATEGORIES, ...Object.values(RECURRENCE_LABELS), ...Object.values(PLANS).flatMap((p) => p.highlights), ...TEAM_ROLES]
+  [...CATEGORIES, ...Object.values(RECURRENCE_LABELS), ...Object.values(PLANS).flatMap((p) => [p.label, ...p.highlights]), ...TEAM_ROLES]
     .forEach((value) => sentences.add(value));
   ok(sentences.size > 300, `only found ${sentences.size} sentences: is the search still working?`);
   const missing = [...sentences].filter((sentence) => !MS[sentence]);

@@ -41,7 +41,7 @@ runPage(async () => {
           <div class="col-md-4"><label class="plan-option d-block h-100">
             <input type="radio" name="plan" value="${key}" ${key === chosen ? "checked" : ""}>
             <span class="card p-3 h-100 d-block">
-              <span class="fw-semibold d-block">${PLANS[key].label}</span>
+              <span class="fw-semibold d-block">${t(PLANS[key].label)}</span>
               <span class="small text-secondary d-block">${PLAN_NOTES[key]}</span>
               ${key === "premium" ? html`<span class="trial-chip mt-2">${t("First month free")}</span>` : ""}
             </span></label></div>`)}

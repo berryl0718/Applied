@@ -171,7 +171,7 @@ const TOGGLER = raw(`<button class="navbar-toggler border-0" type="button" data-
 export function planBadgeText(profile) {
   const trial = trialStatus(profile);
   const plan = planFor(profile);
-  return trial.active ? t("{plan} trial · {days} left", { plan: plan.label, days: plural(trial.daysLeft, "day") }) : plan.label;
+  return trial.active ? t("{plan} trial · {days} left", { plan: t(plan.label), days: plural(trial.daysLeft, "day") }) : t(plan.label);
 }
 
 /** The EN | BM switch. Picking a language saves it and reloads the page in that language. */
@@ -318,8 +318,8 @@ export function runPage(main) {
 export function lockedCard(featureName, neededPlan, plan) {
   return html`<div class="card p-4 text-center mx-auto locked-card">
     <div class="display-6 text-secondary"><i class="bi bi-lock-fill"></i></div>
-    <h1 class="h4 mt-2">${t("{feature} is on the {plan} plan", { feature: featureName, plan: neededPlan })}</h1>
-    <p class="text-secondary">${th("You are on the <strong>{plan}</strong> plan.", { plan: plan.label })}
+    <h1 class="h4 mt-2">${t("{feature} is on the {plan} plan", { feature: featureName, plan: t(neededPlan) })}</h1>
+    <p class="text-secondary">${th("You are on the <strong>{plan}</strong> plan.", { plan: t(plan.label) })}
       ${neededPlan === "Premium" ? t("Premium comes with a 1-month free trial.") : ""}
       ${t("Switch plan in Settings to unlock this page. It is a prototype, so no payment is taken.")}</p>
     <div class="d-flex justify-content-center gap-2 flex-wrap">

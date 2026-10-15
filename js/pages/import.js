@@ -30,7 +30,7 @@ async function uploadView(plan) {
       <div class="col-lg-7"><div class="card p-4 h-100">
         <h2 class="h6">${t("Upload a CSV file")}</h2>
         ${limit !== null ? html`<p class="small ${full ? "text-danger" : "text-secondary"}">
-          ${t("The {plan} plan includes {count} a month. You have used {used}.", { plan: plan.label, count: plural(limit, "upload"), used })}
+          ${t("The {plan} plan includes {count} a month. You have used {used}.", { plan: t(plan.label), count: plural(limit, "upload"), used })}
           ${full ? th("<a href=\"settings.html#plan\">Upgrade to Basic</a> for unlimited uploads.") : ""}</p>` : ""}
         <form id="upload-form" novalidate>
           <div class="mb-3">
@@ -84,7 +84,7 @@ expense,Gas cylinder refill,95.00,${today}</pre>
     }
     return busy(form.querySelector("button"), async () => {
       if (limit !== null && (await countUploadsSince(monthStart)) >= limit) {
-        return showMessage(t("The {plan} plan includes {count} a month. Upgrade to Basic for unlimited uploads.", { plan: plan.label, count: plural(limit, "upload") }), "warning");
+        return showMessage(t("The {plan} plan includes {count} a month. Upgrade to Basic for unlimited uploads.", { plan: t(plan.label), count: plural(limit, "upload") }), "warning");
       }
       let text;
       try {

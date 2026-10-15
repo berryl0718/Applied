@@ -20,7 +20,7 @@ runPage(async () => {
     if (key !== "premium") {
       return current
         ? html`<button class="btn btn-primary w-100" type="button" disabled>${t("Current plan")}</button>`
-        : html`<button class="btn btn-outline-primary w-100" type="button" data-plan="${key}">${t("Switch to {plan}", { plan: plan.label })}</button>`;
+        : html`<button class="btn btn-outline-primary w-100" type="button" data-plan="${key}">${t("Switch to {plan}", { plan: t(plan.label) })}</button>`;
     }
     if (current) {
       return html`<button class="btn btn-mint w-100" type="button" disabled>${trial.active ? t("Current plan (free trial)") : t("Current plan")}</button>
@@ -34,7 +34,7 @@ runPage(async () => {
       return html`<button class="btn btn-mint w-100" type="button" data-plan="premium">${t("Switch back to Premium")}</button>
         <div class="plan-note">${t("Your free trial runs until {date}.", { date: prettyDate(malaysiaDate(trial.endsAt)) })}</div>`;
     }
-    return html`<button class="btn btn-mint w-100" type="button" data-plan="premium">${t("Switch to {plan}", { plan: plan.label })}</button>
+    return html`<button class="btn btn-mint w-100" type="button" data-plan="premium">${t("Switch to {plan}", { plan: t(plan.label) })}</button>
       <div class="plan-note">${t("Free trial already used. {price}/month.", { price: plan.price })}</div>`;
   }
 
@@ -66,7 +66,7 @@ runPage(async () => {
         const plan = PLANS[key];
         const current = profile.plan === key;
         return html`<div class="col-lg-4"><div class="card plan-card d-flex flex-column ${key === "premium" ? "plan-dark" : ""} ${current ? "plan-current" : ""}">
-          <div>${plan.label}${current ? html` <span class="badge text-bg-light ms-1">${t("Your plan")}</span>` : ""}</div>
+          <div>${t(plan.label)}${current ? html` <span class="badge text-bg-light ms-1">${t("Your plan")}</span>` : ""}</div>
           <div class="price">${plan.price}<small>${t("/month")}</small></div>
           ${key === "premium" && !trial.used ? html`<div><span class="trial-chip">${t("First month free")}</span></div>` : ""}
           <ul class="flex-grow-1">${plan.highlights.map((line) => html`<li>${t(line)}</li>`)}</ul>
@@ -133,11 +133,11 @@ runPage(async () => {
       }
       if (profile.plan === "premium" && trial.active
           && !window.confirm(t("You are in your Premium free trial. If you switch, the trial keeps counting down and ends on {date}. Switch to {plan}?",
-            { date: prettyDate(malaysiaDate(trial.endsAt)), plan: PLANS[key].label }))) {
+            { date: prettyDate(malaysiaDate(trial.endsAt)), plan: t(PLANS[key].label) }))) {
         return;
       }
       await updateProfile(userId, { plan: key });
-      goTo("settings.html#plan", t("You are now on the {plan} plan. This is a demo, so no payment was taken.", { plan: PLANS[key].label }));
+      goTo("settings.html#plan", t("You are now on the {plan} plan. This is a demo, so no payment was taken.", { plan: t(PLANS[key].label) }));
     });
   });
 
