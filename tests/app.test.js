@@ -3,7 +3,8 @@
 // We fix "today" to 12 Oct 2026, so the numbers in these tests never change.
 import * as cf from "../js/cashflow.js";
 import {
-  DEMO_CASH_SEN, PLANS, clampInt, demoForecast, demoRecords, horizonChoices, pickHorizon, planFor, trialStatus,
+  DEMO_CASH_SEN, ONBOARDING_SEN, PLANS, checkoutSummary, clampInt, demoForecast, demoRecords, horizonChoices,
+  pickHorizon, planFor, sstSen, trialStatus,
 } from "../js/plans.js";
 import { equal, ok, test } from "./harness.js";
 import { MS } from "../js/i18n-ms.js";
@@ -221,6 +222,26 @@ test("free trial: ended", () => {
   const t = trialStatus({ plan: "premium", trial_started_at: "2026-09-01T00:00:00Z", trial_ends_at: "2026-10-01T00:00:00Z" },
     new Date("2026-10-12T00:00:00Z"));
   equal([t.used, t.active, t.ended, t.daysLeft], [true, false, true, 0]);
+});
+
+// ----- SST (8%) and guided onboarding -----
+test("SST: 8% on Basic, Premium and onboarding, rounded to the sen", () => {
+  equal(sstSen(1990), 159);           // Basic RM19.90 -> SST RM1.59
+  equal(sstSen(3990), 319);           // Premium RM39.90 -> SST RM3.19
+  equal(sstSen(ONBOARDING_SEN), 392); // onboarding RM49 -> SST RM3.92
+  equal(sstSen(0), 0);
+  equal(PLANS.basic.price_sen + sstSen(PLANS.basic.price_sen), 2149);
+  equal(PLANS.premium.price_sen + sstSen(PLANS.premium.price_sen), 4309);
+});
+test("SST: what is due today for each plan", () => {
+  equal(checkoutSummary("free", false).today.total_sen, 0);
+  equal(checkoutSummary("free", true).today.total_sen, 5292);       // onboarding only: RM49 + RM3.92
+  equal(checkoutSummary("basic", false).today.total_sen, 2149);     // RM19.90 + RM1.59
+  equal(checkoutSummary("basic", true).today, { plan_sen: 2149, sst_sen: 551, total_sen: 7441 });
+  const premium = checkoutSummary("premium", false);
+  equal([premium.trial, premium.today.total_sen, premium.monthly.total_sen], [true, 0, 4309]); // first month free
+  equal(checkoutSummary("premium", true).today.total_sen, 5292);    // onboarding is still paid today
+  equal(checkoutSummary("nonsense", false).plan, "free");
 });
 
 // ----- English / Bahasa Melayu -----

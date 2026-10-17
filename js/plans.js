@@ -16,22 +16,54 @@ export const TRIAL_DAYS = 30;        // "1-month free trial" on our website
 // The three plans from our website. Prices are shown only: no money is taken.
 export const PLANS = {
   free: {
-    key: "free", label: "Free", price: "RM0", horizon: 7, uploadsPerMonth: 2,
+    key: "free", label: "Free", price: "RM0", price_sen: 0, horizon: 7, uploadsPerMonth: 2,
     summaries: false, scenarios: false, detailed: false, team: false,
     highlights: ["Manual entry", "7-day forecast", "Limited document uploads"],
   },
   basic: {
-    key: "basic", label: "Basic", price: "RM19.90", horizon: 30, uploadsPerMonth: null,
+    key: "basic", label: "Basic", price: "RM19.90", price_sen: 1990, horizon: 30, uploadsPerMonth: null,
     summaries: true, scenarios: false, detailed: false, team: false,
     highlights: ["30-day forecast", "Document uploads", "Monthly summaries"],
   },
   premium: {
-    key: "premium", label: "Premium", price: "RM39.90", horizon: 90, uploadsPerMonth: null,
+    key: "premium", label: "Premium", price: "RM39.90", price_sen: 3990, horizon: 90, uploadsPerMonth: null,
     summaries: true, scenarios: true, detailed: true, team: true,
     highlights: ["90-day forecast", "Scenario planning", "Detailed reports", "Team access"],
   },
 };
 export const PLAN_ORDER = ["free", "basic", "premium"];
+
+// ---------------------------------------------------------------------------
+// SST (Malaysian Sales and Service Tax) and guided onboarding.
+// 8% SST is added to the paid plans (Basic, Premium) and to guided onboarding.
+// The Free plan has nothing to pay, so no SST. Prototype: nothing is charged.
+// ---------------------------------------------------------------------------
+export const SST_PERCENT = 8;
+export const ONBOARDING_SEN = 4900; // RM49, one-time (as on our website)
+
+/** 8% SST on an amount in sen, rounded to the nearest sen. 1990 -> 159 (RM1.59) */
+export function sstSen(amountSen) {
+  return Math.round((amountSen * SST_PERCENT) / 100);
+}
+
+/** What a new account pays, for the order summary on the sign-up page.
+ *    monthly  - the plan's monthly fee, its SST and the total
+ *    onboarding - the one-time guided onboarding, its SST and the total (all 0 if not chosen)
+ *    trial    - true for Premium: the first month is free, so no plan fee today
+ *    today    - everything due today (plan fee unless on trial, plus onboarding) */
+export function checkoutSummary(planKey, withOnboarding) {
+  const plan = PLANS[planKey] || PLANS.free;
+  const fee = plan.price_sen;
+  const monthly = { fee_sen: fee, sst_sen: sstSen(fee), total_sen: fee + sstSen(fee) };
+  const oneOff = withOnboarding ? ONBOARDING_SEN : 0;
+  const onboarding = { fee_sen: oneOff, sst_sen: sstSen(oneOff), total_sen: oneOff + sstSen(oneOff) };
+  const trial = plan.key === "premium";
+  const planToday = trial ? 0 : monthly.total_sen;
+  return {
+    plan: plan.key, monthly, onboarding, trial,
+    today: { plan_sen: planToday, sst_sen: (trial ? 0 : monthly.sst_sen) + onboarding.sst_sen, total_sen: planToday + onboarding.total_sen },
+  };
+}
 
 /** The plan object for a profile row (falls back to Free). */
 export function planFor(profile) {

@@ -29,7 +29,7 @@ Owners and staff of Malaysian micro-SMEs. Each business owner has one account an
 3. **Expense management**: add planned costs and recurring commitments (weekly or monthly) to the forecast.
 4. **Document upload**: upload a CSV of records, **review** them first, and only then let them change the forecast.
 5. **Detailed reports**: monthly summaries (Basic) and a detailed report with current cash, projected low point, overdue invoices and top costs (Premium).
-6. **Plans**: Free (RM0), Basic (RM19.90/month, no trial) and Premium (RM39.90/month) that unlock different forecast lengths and features. **Premium comes with a 1-month (30-day) free trial**, once per account. For this prototype, no real payment is taken.
+6. **Plans**: Free (RM0), Basic (RM19.90/month + 8% SST, no trial) and Premium (RM39.90/month + 8% SST) that unlock different forecast lengths and features. **Premium comes with a 1-month (30-day) free trial**, once per account. For this prototype, no real payment is taken.
 
 ## 6. Nice-to-have features (only if there's time)
 1. **Scenario planning** (Premium): "What if customers pay 14 days late?" and "What if we cut costs by 10%?", compared with the normal forecast.

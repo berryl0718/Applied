@@ -3,7 +3,7 @@
 import { formatRM, parseAmount, prettyDate, senToInput } from "../cashflow.js";
 import { clearMyData, countRecords, loadDemoData, startTrial, updateProfile } from "../db.js";
 import {
-  DEMO_BUSINESS, DEMO_CASH_SEN, DEMO_LOCATION, PLAN_ORDER, PLANS, demoRecords,
+  DEMO_BUSINESS, DEMO_CASH_SEN, DEMO_LOCATION, PLAN_ORDER, PLANS, SST_PERCENT, demoRecords, sstSen,
 } from "../plans.js";
 import {
   busy, clearMessages, goTo, html, malaysiaDate, plural, runPage, show, showMessage, startPage, t, th, todayISO, trialBanner,
@@ -11,7 +11,8 @@ import {
 
 
 runPage(async () => {
-  const { profile, userId, email, trial } = await startPage("settings", { login: true });
+  const { profile, session, userId, email, trial } = await startPage("settings", { login: true });
+  const onboarding = Boolean(session.user?.user_metadata?.onboarding);
   const hasData = (await countRecords()) > 0;
 
   function planButton(key) {
@@ -68,6 +69,7 @@ runPage(async () => {
         return html`<div class="col-lg-4"><div class="card plan-card d-flex flex-column ${key === "premium" ? "plan-dark" : ""} ${current ? "plan-current" : ""}">
           <div>${t(plan.label)}${current ? html` <span class="badge text-bg-light ms-1">${t("Your plan")}</span>` : ""}</div>
           <div class="price">${plan.price}<small>${t("/month")}</small></div>
+          ${plan.price_sen ? html`<div class="plan-note text-start mt-0 mb-1">${t("+ {percent}% SST = {amount}/month", { percent: SST_PERCENT, amount: formatRM(plan.price_sen + sstSen(plan.price_sen)) })}</div>` : ""}
           ${key === "premium" && !trial.used ? html`<div><span class="trial-chip">${t("First month free")}</span></div>` : ""}
           <ul class="flex-grow-1">${plan.highlights.map((line) => html`<li>${t(line)}</li>`)}</ul>
           <div>${planButton(key)}</div></div></div>`;
@@ -94,7 +96,10 @@ runPage(async () => {
 
     <div class="card p-4">
       <h2 class="h5">${t("Account")}</h2>
-      <p class="text-secondary small mb-0">${th("Logged in as <strong>{email}</strong>.", { email })}</p>
+      <p class="text-secondary small mb-1">${th("Logged in as <strong>{email}</strong>.", { email })}</p>
+      <p class="text-secondary small mb-0">${onboarding
+        ? t("Guided onboarding: requested at sign-up (prototype: no session is booked).")
+        : t("Guided onboarding: not requested.")}</p>
     </div>`);
 
   if (window.location.hash) document.querySelector(window.location.hash)?.scrollIntoView();
