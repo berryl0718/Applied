@@ -1,8 +1,35 @@
 // Create an account. The plan picked here is saved by the database; picking
 // Premium starts the 1-month (30-day) free trial straight away.
+// The order summary shows the 8% SST on the paid plans and on guided onboarding.
+import { formatRM } from "../cashflow.js";
 import { signUp } from "../db.js";
-import { PLAN_ORDER, PLANS } from "../plans.js";
+import { ONBOARDING_SEN, PLAN_ORDER, PLANS, SST_PERCENT, checkoutSummary } from "../plans.js";
 import { busy, clearMessages, goTo, html, param, runPage, show, showMessage, startPage, t, th } from "../ui.js";
+
+/** The order summary box: plan fee, SST, onboarding and what is due today. */
+function orderSummary(planKey, withOnboarding) {
+  const s = checkoutSummary(planKey, withOnboarding);
+  const row = (label, amount, extra = "") => html`<div class="d-flex justify-content-between gap-3 ${extra}">
+    <span>${label}</span><span class="amount text-nowrap">${amount}</span></div>`;
+  const sst = t("SST ({percent}%)", { percent: SST_PERCENT });
+  return html`
+    <div class="fw-semibold mb-2">${t("Order summary")}</div>
+    ${row(t("{plan} plan, monthly fee", { plan: t(PLANS[s.plan].label) }), formatRM(s.monthly.fee_sen))}
+    ${s.monthly.fee_sen ? html`
+      ${row(sst, formatRM(s.monthly.sst_sen), "text-secondary")}
+      ${row(t("Monthly total incl. SST"), formatRM(s.monthly.total_sen), "fw-semibold")}` : ""}
+    ${s.trial ? row(t("Free trial"), t("1 month (RM0 today)"), "text-success") : ""}
+    <hr class="my-2">
+    ${withOnboarding ? html`
+      ${row(t("Guided onboarding (one-time)"), formatRM(s.onboarding.fee_sen))}
+      ${row(sst, formatRM(s.onboarding.sst_sen), "text-secondary")}`
+      : row(t("Guided onboarding"), t("Not selected"), "text-secondary")}
+    <hr class="my-2">
+    ${row(t("Due today"), formatRM(s.today.total_sen), "fw-bold fs-6")}
+    ${s.today.sst_sen ? html`<div class="small text-secondary text-end">${t("includes {amount} SST", { amount: formatRM(s.today.sst_sen) })}</div>` : ""}
+    ${s.trial ? html`<div class="small text-secondary mt-1">${t("After your 30-day trial: {amount}/month incl. SST.", { amount: formatRM(s.monthly.total_sen) })}</div>` : ""}
+    <div class="small text-secondary mt-1">${t("Prototype: no payment is taken.")}</div>`;
+}
 
 const PLAN_NOTES = {
   free: t("Free forever"),
@@ -47,12 +74,22 @@ runPage(async () => {
             </span></label></div>`)}
         </div>
       </fieldset>
+      <div class="form-check mb-3">
+        <input class="form-check-input" type="checkbox" id="onboarding" name="onboarding">
+        <label class="form-check-label" for="onboarding">${t("Add guided onboarding ({price} one-time)", { price: formatRM(ONBOARDING_SEN) })}</label>
+        <div class="form-text">${t("We help you set up your cash, invoices and expenses. 8% SST applies.")}</div>
+      </div>
+      <div class="card p-3 mb-3 bg-light small order-summary" id="order-summary" aria-live="polite">${orderSummary(chosen, false)}</div>
       <button class="btn btn-primary w-100" type="submit">${t("Create account")}</button>
     </form>
     <p class="small text-secondary mt-3 mb-0">${t("Already have an account?")} <a href="login.html">${t("Log in")}</a></p>
   </div>`);
 
   const form = document.getElementById("register-form");
+  // Keep the order summary up to date as the plan or onboarding choice changes.
+  form.addEventListener("change", () => {
+    show("order-summary", orderSummary(form.plan.value, form.onboarding.checked));
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     clearMessages();
@@ -60,6 +97,7 @@ runPage(async () => {
     const email = form.email.value.trim();
     const password = form.password.value;
     const plan = form.plan.value;
+    const onboarding = form.onboarding.checked;
     let error = "";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) error = t("Enter a valid email address.");
     else if (password.length < 8) error = t("Password must be at least 8 characters.");
@@ -70,7 +108,7 @@ runPage(async () => {
       return;
     }
     busy(form.querySelector("button"), async () => {
-      const loggedIn = await signUp({ email, password, businessName, plan });
+      const loggedIn = await signUp({ email, password, businessName, plan, onboarding });
       const welcome = plan === "premium"
         ? t("Account created! Your 1-month Premium free trial has started.")
         : t("Account created!");

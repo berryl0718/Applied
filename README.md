@@ -25,6 +25,8 @@ BFM3130 Entrepreneurship in FinTech · group assignment prototype.
 | **1-month free trial of Premium** (once per account), then RM39.90/month | Premium |
 | One-click demo business "Dapur Seri" (Petaling Jaya): RM2,960 cash, +RM12,722 income, RM4,082 at day 30, a dip to -RM2,168 | All |
 | **English / Bahasa Melayu**: an **EN \| BM** switch in the menu on every page (remembered in the browser) | All |
+| **8% SST** on Basic (RM21.49/month incl. SST) and Premium (RM43.09/month incl. SST), with an order summary on the sign-up page | Basic, Premium |
+| **Guided onboarding** (RM49 one-time + 8% SST = RM52.92), chosen at sign-up | All |
 
 Plans: **Free RM0**, **Basic RM19.90/month** (no trial), **Premium RM39.90/month** (first month free).
 This is a prototype, so no payment is ever taken and you can switch plans in Settings.

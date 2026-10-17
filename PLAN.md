@@ -24,6 +24,12 @@ Functions: `start_premium_trial()`, `mark_invoice_paid()`, `accept_import()`, `c
 - Trial dates can only be written by the database function, so a user can't give themselves a second trial.
 - After 30 days, the account stays on Premium at RM39.90/month (prototype: no payment). Switching plans during the trial doesn't restart it.
 
+## SST and guided onboarding
+- 8% SST is added to Basic (RM19.90 + RM1.59 = RM21.49/month), Premium (RM39.90 + RM3.19 = RM43.09/month) and guided onboarding (RM49 + RM3.92 = RM52.92, one-time). Free has no SST.
+- The sign-up page shows an order summary that updates as the plan and onboarding change. Premium's first month is free, so only onboarding (if chosen) is due today.
+- The onboarding choice is saved with the login (user metadata) and shown in Settings. Prototype: nothing is charged and no session is booked.
+- The maths is `sstSen()` and `checkoutSummary()` in `js/plans.js` (tested).
+
 ## Assumptions
 1. A prototype has no real payments: changing plan is free and instant.
 2. Email and password login. Email confirmation can be turned off in Supabase for class demos.

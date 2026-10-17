@@ -11,6 +11,7 @@ Open http://localhost:8000. The automatic tests are at http://localhost:8000/tes
 - [ ] Home page shows the Dapur Seri demo (RM2,960, +RM12,722, RM4,082, Shortfall risk) and the three plans.
 - [ ] Premium shows **First month free**, **Start 1-Month Free Trial** and "Then RM39.90/month after your 30-day trial." The FAQ says "Is there a free trial? Yes…".
 - [ ] Click **Start 1-Month Free Trial**. Register opens with Premium already chosen.
+- [ ] Sign-up order summary: Basic shows RM19.90 + RM1.59 SST = RM21.49 due today; Premium shows RM43.09/month incl. SST but RM0 due today (free trial); ticking **Add guided onboarding** adds RM49 + RM3.92 SST; Free shows RM0. Settings shows "+ 8% SST" on Basic and Premium, and the Account box says whether onboarding was requested.
 - [ ] Register with a 5-character password: refused. With 8 or more characters, you land on the dashboard with "Your 1-month Premium free trial has started" and the menu shows "Premium trial · 30 days left".
 - [ ] Log out, then log in with a wrong password: "Wrong email or password." Log in correctly.
 - [ ] Settings, then **Load demo data**: the dashboard shows the shortfall warning with a low point of -RM2,168 and a chart.

@@ -39,12 +39,13 @@ export async function getSession() {
  *  (and starts the 30-day free trial when the plan is "premium").
  *  Returns true if the user is logged in straight away, false if they must
  *  confirm their email first. */
-export async function signUp({ email, password, businessName, plan }) {
+export async function signUp({ email, password, businessName, plan, onboarding = false }) {
   const data = check(await supabase.auth.signUp({
     email,
     password,
     options: {
-      data: { business_name: businessName, plan },
+      // "onboarding": did they ask for guided onboarding? Kept with the login (shown in Settings).
+      data: { business_name: businessName, plan, onboarding },
       emailRedirectTo: new URL("dashboard.html", window.location.href).href,
     },
   }));
