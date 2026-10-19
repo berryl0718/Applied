@@ -4,6 +4,18 @@ import { formatRM, sparkline } from "../cashflow.js";
 import { DEMO_BUSINESS, DEMO_LOCATION, PLAN_ORDER, PLANS, demoForecast } from "../plans.js";
 import { esc, html, raw, runPage, show, startPage, t, todayISO } from "../ui.js";
 
+// Same four steps as the "How It Works" section on our website.
+const STEPS = [
+  [t("Upload or enter your records"), t("Enter income and expenses by hand, or upload a recent CSV bank statement."),
+    [t("CSV statements"), t("Bills"), t("Invoices")]],
+  [t("Review and confirm"), t("Check each line, fix categories and mark recurring items like rent before anything is used."),
+    [t("You stay in control")]],
+  [t("SME CashFlow analyses your cash"), t("Fixed costs like rent carry forward. Bills like electricity are estimated from recent patterns, and you can adjust them."),
+    [t("Recurring expenses"), t("Expected payments")]],
+  [t("Receive your cash-flow forecast"), t("See your balance 7, 30 or 90 days ahead, the date a shortage may happen and which payment causes it."),
+    [t("Updates as you add data")]],
+];
+
 const FEATURES = [
   ["bi-graph-up", t("Cash-flow forecasting"), t("See projected balances for the next 7, 30, or 90 days.")],
   ["bi-receipt", t("Invoice tracking"), t("Track expected receipts and mark paid invoices when money arrives.")],
@@ -45,7 +57,7 @@ runPage(async () => {
       <h1 class="mb-3">${t("Know Your Cash Before It Runs Out.")}</h1>
       <p class="lead mb-4">${t("SME CashFlow helps Malaysian micro-businesses turn scattered financial records into simple, forward-looking cash-flow forecasts.")}</p>
       <a class="btn btn-primary btn-lg me-2 mb-2" href="register.html">${t("Start Free")} <i class="bi bi-arrow-right"></i></a>
-      <a class="btn btn-light btn-lg mb-2" href="#features">${t("See How It Works")}</a>
+      <a class="btn btn-light btn-lg mb-2" href="#how-it-works">${t("See How It Works")}</a>
     </div>
     <div class="col-lg-6"><div class="demo-card">
       <div class="d-flex align-items-center justify-content-between mb-3">
@@ -73,6 +85,22 @@ runPage(async () => {
   </div></div></section>`);
 
   show("main", html`
+  <section id="how-it-works" class="py-5">
+    <div class="eyebrow mb-2">${t("How It Works")}</div>
+    <h2 class="section-title mb-4">${t("From scattered records to a clear forecast in four steps")}</h2>
+    <div class="row g-3">${STEPS.map(([title, text, chips], i) => html`
+      <div class="col-md-6 col-lg-3"><div class="card step-card h-100 p-4">
+        <div><span class="step-num">${t("Step {n}", { n: i + 1 })}</span></div>
+        <h3 class="h5 mt-3">${title}</h3>
+        <p class="text-secondary">${text}</p>
+        <div class="d-flex flex-wrap gap-2 mt-auto">${chips.map((chip) => html`<span class="step-chip">${chip}</span>`)}</div>
+      </div></div>`)}</div>
+    <div class="confirm-note mt-3">
+      <div class="fw-bold">${t("Nothing goes into your forecast until you confirm it.")}</div>
+      <div>${t("Uploaded lines arrive as suggestions. You approve, edit or skip each one.")}</div>
+    </div>
+  </section>
+
   <section id="features" class="py-5">
     <div class="eyebrow mb-2">${t("Features")}</div>
     <h2 class="section-title mb-4">${t("Built around the decisions that matter this week.")}</h2>

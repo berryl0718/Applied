@@ -201,6 +201,7 @@ function renderNav(current, profile) {
     show(nav, html`<div class="container">${BRAND}${TOGGLER}
       <div class="collapse navbar-collapse" id="mainMenu">
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html#how-it-works">${t("How It Works")}</a></li>
           <li class="nav-item"><a class="nav-link" href="index.html#features">${t("Features")}</a></li>
           <li class="nav-item"><a class="nav-link" href="index.html#pricing">${t("Pricing")}</a></li>
           <li class="nav-item"><a class="nav-link" href="index.html#support">${t("Support")}</a></li>
