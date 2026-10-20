@@ -230,3 +230,72 @@ export async function loadDemoData(userId, demo) {
 export async function clearMyData() {
   check(await supabase.rpc("clear_my_data"));
 }
+
+// ---------------------------------------------------------------------------
+// AI advice (Supabase Edge Function "ai-insights" -> Google Gemini API)
+// ---------------------------------------------------------------------------
+const AI_TIMEOUT_MS = 20000;
+
+/** Ask the AI for advice. Returns {advice, model, ms}. Throws if the AI can't answer. */
+export async function askAI(summary, lang) {
+  const started = performance.now();
+  const timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("The AI took too long to answer.")), AI_TIMEOUT_MS));
+  const { data, error } = await Promise.race([
+    supabase.functions.invoke("ai-insights", { body: { summary, lang } }),
+    timeout,
+  ]);
+  if (error) {
+    let detail = error.message;
+    try { detail = (await error.context?.json())?.error || detail; } catch { /* keep the first message */ }
+    throw new Error(detail);
+  }
+  if (!data?.advice) throw new Error(data?.error || "The AI returned no advice.");
+  return { advice: data.advice, model: data.model, ms: Math.round(performance.now() - started) };
+}
+
+/** Is the AI function deployed and does it have its key? (does not call Google) */
+export async function pingAI() {
+  const { data, error } = await supabase.functions.invoke("ai-insights", { body: { ping: true } });
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+/** Record an AI request in the live log ("ok" or "fallback"). Never throws. */
+export async function logAiRequest(status, ms, model) {
+  try {
+    await supabase.rpc("log_ai_request", { p_status: status, p_ms: Math.round(ms), p_model: model ?? null });
+  } catch { /* the log is optional */ }
+}
+
+// ---------------------------------------------------------------------------
+// Admin Control Centre (each function checks "admin?" inside the database)
+// ---------------------------------------------------------------------------
+/** True if this user is an admin. False if not, or if the upgrade SQL hasn't been run. */
+export async function isAdmin() {
+  const { data, error } = await supabase.rpc("is_admin");
+  return !error && data === true;
+}
+
+export async function healthPing() {
+  return check(await supabase.rpc("health_ping"));
+}
+
+export async function adminOverview() {
+  return check(await supabase.rpc("admin_overview"));
+}
+
+export async function adminUsers() {
+  return check(await supabase.rpc("admin_users"));
+}
+
+export async function adminEvents(afterId = 0, limit = 50) {
+  return check(await supabase.rpc("admin_events", { p_after_id: afterId, p_limit: limit }));
+}
+
+export async function adminSecurity() {
+  return check(await supabase.rpc("admin_security"));
+}
+
+export async function adminBackend() {
+  return check(await supabase.rpc("admin_backend"));
+}

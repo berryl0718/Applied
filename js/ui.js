@@ -5,6 +5,7 @@ import { friendlyError, getProfile, getSession, signOut } from "./db.js";
 import { APP_NAME, PLANS, planFor, trialStatus } from "./plans.js";
 import { formatRM, prettyDate } from "./cashflow.js";
 import { LANG_NAMES, LANGS, getLang, plural, setLang, t } from "./i18n.js";
+import { VERSION } from "./version.js";
 
 export { t, plural };
 
@@ -297,7 +298,7 @@ function translateShell() {
   document.documentElement.lang = getLang();
   const footer = document.querySelector(".app-footer .container");
   if (footer) {
-    footer.textContent = t("SME CashFlow · Forecasts are estimates based on the numbers you enter. They are not bookkeeping, tax or financial advice.");
+    footer.textContent = `${t("SME CashFlow · Forecasts are estimates based on the numbers you enter. They are not bookkeeping, tax or financial advice.")} · v${VERSION}`;
   }
   const loading = document.querySelector("#main > p.text-secondary");
   if (loading) loading.textContent = t("Loading…");

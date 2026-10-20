@@ -1,6 +1,8 @@
 // The dashboard: the cash-flow forecast, warnings, numbers, chart and what's coming up.
 import { buildForecast, formatRM, shortDate } from "../cashflow.js";
-import { countRecords, loadForecastInputs } from "../db.js";
+import { askAI, countRecords, loadForecastInputs, logAiRequest } from "../db.js";
+import { adviceLines, aiSummary, ruleInsights } from "../insights.js";
+import { getLang } from "../i18n.js";
 import { horizonChoices, pickHorizon } from "../plans.js";
 import {
   chartValues, drawChart, html, kpi, param, plural, runPage, show, startPage, t, th, todayISO, toneFor, trialBanner,
@@ -97,8 +99,47 @@ runPage(async () => {
           <a class="btn btn-sm btn-outline-primary" href="settings.html#plan">${trial.used ? t("See plans") : t("Start free trial")}</a>
         </div>` : ""}
       </div>
+    </div>
+
+    <div class="card p-3 mt-3 ai-card">
+      <div class="d-flex flex-wrap justify-content-between align-items-start gap-2">
+        <div>
+          <h2 class="h6 mb-1"><i class="bi bi-stars me-1"></i>${t("AI cash-flow advice")}</h2>
+          <div class="small text-secondary">${t("Our AI (Google Gemini) reads this forecast and suggests what to do. Only the numbers and dates are sent, never names or bank details.")}</div>
+        </div>
+        <button class="btn btn-sm btn-primary" type="button" id="ai-button"><i class="bi bi-stars"></i> ${t("Ask AI")}</button>
+      </div>
+      <div id="ai-result" aria-live="polite"></div>
     </div>`);
+
+  document.getElementById("ai-button").addEventListener("click", (event) => getAdvice(event.currentTarget, f, today));
 
   drawChart("forecast-chart", f.points.map((p) => shortDate(p.date)),
     [{ label: t("Projected balance"), data: chartValues(f) }]);
 });
+
+/** Ask the AI. If it can't answer, show the built-in rules instead, so there is always advice. */
+async function getAdvice(button, f, today) {
+  button.disabled = true;
+  const box = document.getElementById("ai-result");
+  show(box, html`<div class="ai-thinking mt-3"><span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>${t("Asking the AI…")}</div>`);
+  const started = performance.now();
+  try {
+    const { advice, model, ms } = await askAI(aiSummary(f, today), getLang());
+    logAiRequest("ok", ms, model);
+    show(box, html`<ul class="ai-tips mt-3 mb-2">${adviceLines(advice).map((line) => html`<li>${line}</li>`)}</ul>
+      <div class="d-flex flex-wrap gap-2 align-items-center small text-secondary">
+        <span class="tag tag-ai">${t("AI")} &middot; ${model}</span><span>${t("Answered in {seconds} s.", { seconds: (ms / 1000).toFixed(1) })}</span>
+        <span>${t("AI can make mistakes. Check the numbers before you act.")}</span></div>`);
+  } catch (error) {
+    const ms = performance.now() - started;
+    logAiRequest("fallback", ms);
+    console.warn("AI unavailable:", error);
+    show(box, html`<ul class="ai-tips mt-3 mb-2">${ruleInsights(f).map((line) => html`<li>${line}</li>`)}</ul>
+      <div class="d-flex flex-wrap gap-2 align-items-center small text-secondary">
+        <span class="tag tag-rules">${t("Built-in rules")}</span>
+        <span>${t("The AI is unavailable right now, so these tips come from our built-in rules.")}</span></div>`);
+  } finally {
+    button.disabled = false;
+  }
+}

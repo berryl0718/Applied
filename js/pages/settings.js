@@ -1,7 +1,7 @@
 // Settings: business details and current cash, the plan (with the 1-month
 // Premium free trial), demo data, and clearing your data.
 import { formatRM, parseAmount, prettyDate, senToInput } from "../cashflow.js";
-import { clearMyData, countRecords, loadDemoData, startTrial, updateProfile } from "../db.js";
+import { clearMyData, countRecords, isAdmin, loadDemoData, startTrial, updateProfile } from "../db.js";
 import {
   DEMO_BUSINESS, DEMO_CASH_SEN, DEMO_LOCATION, PLAN_ORDER, PLANS, SST_PERCENT, demoRecords, sstSen,
 } from "../plans.js";
@@ -13,7 +13,7 @@ import {
 runPage(async () => {
   const { profile, session, userId, email, trial } = await startPage("settings", { login: true });
   const onboarding = Boolean(session.user?.user_metadata?.onboarding);
-  const hasData = (await countRecords()) > 0;
+  const [hasData, admin] = await Promise.all([countRecords().then((n) => n > 0), isAdmin()]);
 
   function planButton(key) {
     const plan = PLANS[key];
@@ -42,6 +42,11 @@ runPage(async () => {
   show("main", html`
     <h1 class="h3 mb-3">${t("Settings")}</h1>
     ${trialBanner(trial, profile)}
+    ${admin ? html`<div class="card p-4 mb-4 admin-link-card">
+      <h2 class="h5"><i class="bi bi-shield-lock me-1"></i>${t("Admin")}</h2>
+      <p class="text-secondary small">${t("You are an admin. Open the Control Centre to see users, the live log, system health and security.")}</p>
+      <div><a class="btn btn-primary" href="admin.html">${t("Open Admin Control Centre")}</a></div>
+    </div>` : ""}
 
     <div class="card p-4 mb-4">
       <h2 class="h5">${t("Your business")}</h2>

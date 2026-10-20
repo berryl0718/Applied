@@ -277,7 +277,7 @@ test("language: every English sentence has a Malay translation", async () => {
   // Every file with text on screen. Add new page files here too.
   const files = ["ui.js", "db.js", "cashflow.js", "plans.js", "pages/dashboard.js", "pages/expenses.js", "pages/home.js",
     "pages/import.js", "pages/invoices.js", "pages/login.js", "pages/notfound.js", "pages/register.js",
-    "pages/reports.js", "pages/scenarios.js", "pages/settings.js", "pages/team.js"];
+    "pages/reports.js", "pages/scenarios.js", "pages/settings.js", "pages/team.js", "insights.js"];
   const read = typeof window === "undefined"
     ? async (file) => (await import("node:fs")).readFileSync(new URL(`../js/${file}`, import.meta.url), "utf8")
     : async (file) => (await fetch(`../js/${file}`)).text();
@@ -298,4 +298,46 @@ test("language: every English sentence has a Malay translation", async () => {
   const shape = (text) => [...(text.match(/\{\w+\}|<\/?\w+/g) || [])].sort();
   const broken = Object.entries(MS).filter(([en, ms]) => JSON.stringify(shape(en)) !== JSON.stringify(shape(ms)));
   equal(broken.map(([en]) => en), [], "these translations lost a {blank} or <tag>");
+});
+
+// ----- AI advice: what we send, and the built-in backup rules -----
+import { adviceLines, aiSummary, ruleInsights } from "../js/insights.js";
+
+test("AI summary sends numbers and categories only, never customer names", () => {
+  setLang("en", { save: false });
+  const f = demoForecast(TODAY);
+  const summary = aiSummary(f, TODAY);
+  const sent = JSON.stringify(summary);
+  for (const name of ["Taman Desa", "Kafe Bayu", "Menara PJ", "Aisyah", "Mawar", "Ingredients supplier", "Shop lot"]) {
+    ok(!sent.includes(name), `${name} must not be sent to the AI`);
+  }
+  equal(summary.low_sen, f.low_sen);
+  ok(summary.events.every((e) => e.label === "Invoice" || ["Rent", "Stock / ingredients", "Wages", "Utilities"].includes(e.label)));
+});
+test("built-in rules: demo shortfall gives the gap, the biggest payment and the next invoice", () => {
+  setLang("en", { save: false });
+  const tips = ruleInsights(demoForecast(TODAY));
+  ok(tips.length >= 2 && tips.length <= 4, `got ${tips.length} tips`);
+  ok(tips[0].includes("-RM2,168") && tips[0].includes("RM2,168 more"), tips[0]);
+  ok(tips.some((tip) => tip.startsWith("The biggest payment before then is")), "biggest payment tip");
+  ok(tips.some((tip) => tip.includes("would help cover the gap")), "next invoice tip");
+});
+test("built-in rules: no shortfall and overdue invoices", () => {
+  setLang("en", { save: false });
+  const f = cf.buildForecast(500000, [inv("A", 30000, day(-3))], [exp("Rent", 100000, day(5))], TODAY, 7);
+  const tips = ruleInsights(f);
+  ok(tips[0].startsWith("No shortfall in the next 7 days."), tips[0]);
+  ok(tips.some((tip) => tip.startsWith("1 overdue invoice worth RM300 is overdue")), tips.join(" | "));
+  ok(tips.some((tip) => tip.includes("RM700 more than you receive")), tips.join(" | "));
+});
+test("built-in rules speak Malay too", () => {
+  setLang("ms", { save: false });
+  const tips = ruleInsights(demoForecast(TODAY));
+  setLang("en", { save: false });
+  ok(tips[0].startsWith("Tunai anda mungkin jatuh ke"), tips[0]);
+});
+test("AI reply is split into clean tips", () => {
+  equal(adviceLines("- Chase **RM2,400** today\n\n* Delay rent\n1. Keep RM500 aside\n• Last one"),
+    ["Chase RM2,400 today", "Delay rent", "Keep RM500 aside", "Last one"]);
+  equal(adviceLines(""), []);
 });

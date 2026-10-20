@@ -140,6 +140,17 @@ vercel.json              ← security headers for Vercel
 
 **Languages:** every sentence on screen is written in English inside `t("...")`, and `js/i18n-ms.js` holds its Malay version. The **EN | BM** button saves the choice in the browser and reloads the page. Saved data (categories, plans, what users type) is stored the same way in both languages, so switching never changes the database. A test fails if any sentence is missing its Malay translation. To change a translation, edit the right-hand text in `js/i18n-ms.js`.
 
+## Version 2.0: Admin Control Centre and AI advice
+
+See **ADMIN_AND_AI_SETUP.md** for the 5 setup steps (database upgrade, make yourself admin, Gemini key, AI function).
+
+| New | Where |
+|---|---|
+| AI cash-flow advice (Google Gemini API, with built-in rules as a backup) | Dashboard → "Ask AI" |
+| Admin Control Centre: users, live log, system health, server, API, AI & routing, security, backend, code health, releases | `admin.html` (admins only) |
+| Event log written by database triggers | `supabase/upgrade_admin_ai.sql` |
+| AI Edge Function (keeps the Gemini key secret) | `supabase/functions/ai-insights/index.ts` |
+
 **Who did what:**
 
 | Member | Role | BMC Excel | Written report | Presentation |
