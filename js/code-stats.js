@@ -1,6 +1,6 @@
 // Made by scripts/code-stats.mjs. Run "node scripts/code-stats.mjs" to update.
 export const CODE_STATS = {
-  "counted": "2026-10-20",
+  "counted": "2026-10-25",
   "tests": 39,
   "byLanguage": {
     "HTML": {
@@ -17,7 +17,7 @@ export const CODE_STATS = {
     },
     "TypeScript": {
       "files": 1,
-      "lines": 105
+      "lines": 121
     },
     "SQL": {
       "files": 2,

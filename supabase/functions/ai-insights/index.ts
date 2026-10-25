@@ -62,9 +62,26 @@ function buildPrompt(s: Record<string, unknown>, lang: string) {
   ].join("\n");
 }
 
+// Only logged-in users of our app may use this function. We ask Supabase Auth
+// "who owns this login token?"; a missing, fake or expired token is refused.
+// (So the dashboard setting "Verify JWT with legacy secret" can stay OFF.)
+async function isLoggedIn(req: Request) {
+  const token = req.headers.get("Authorization") ?? "";
+  const apikey = req.headers.get("apikey") ?? Deno.env.get("SUPABASE_ANON_KEY") ?? "";
+  const url = Deno.env.get("SUPABASE_URL");
+  if (!url || !token.startsWith("Bearer ")) return false;
+  try {
+    const res = await fetch(`${url}/auth/v1/user`, { headers: { Authorization: token, apikey } });
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") return reply({ error: "Use POST." }, 405);
+  if (!(await isLoggedIn(req))) return reply({ error: "Please log in first." }, 401);
 
   let body: Record<string, unknown> = {};
   try {
