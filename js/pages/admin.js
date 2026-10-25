@@ -450,7 +450,7 @@ function renderAiStatic() {
       <div class="route" id="ai-route"></div>
       <p class="small text-secondary mt-3 mb-0">The Gemini API key is a secret. It is saved in Supabase (Edge Functions → Secrets) and only our
         Edge Function can read it; it is never sent to the phone. Only forecast numbers, dates and categories are sent to Google,
-        never names, emails or bank details. If the AI is slow (20 s) or fails, the app shows built-in rule-based tips instead.</p>
+        never names, emails or bank details. If the AI is slow (30 s) or fails, the app shows built-in rule-based tips instead.</p>
     </div>
     <div class="row g-3 mb-3">
       <div class="col-lg-5"><div class="card p-3 h-100" id="ai-stats"></div></div>

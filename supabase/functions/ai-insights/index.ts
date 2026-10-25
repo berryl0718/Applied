@@ -18,7 +18,7 @@ const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
 // "gemini-flash-latest" always points to Google's newest Flash model.
 // To pin a model, add a secret GEMINI_MODEL (for example "gemini-2.5-flash").
 const MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-flash-latest";
-const TIMEOUT_MS = 15000;
+const TIMEOUT_MS = 25000;
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -60,6 +60,40 @@ function buildPrompt(s: Record<string, unknown>, lang: string) {
     "Upcoming money in and out:",
     ...lines,
   ].join("\n");
+}
+
+// Newer Gemini models "think" before answering, which can take 15+ seconds.
+// Short cash-flow tips don't need that, so we turn thinking down. If a model
+// doesn't accept the setting, we ask again without it.
+function thinkingFor(model: string) {
+  if (/gemini-2\.5-flash/.test(model)) return { thinkingBudget: 0 };
+  if (/gemini-2\.5-pro/.test(model)) return { thinkingBudget: 128 };
+  if (/gemini-[3-9]/.test(model) || /latest/.test(model)) return { thinkingLevel: "low" };
+  return null;
+}
+
+async function generate(model: string, prompt: string, maxTokens: number) {
+  const call = async (thinking: Record<string, unknown> | null) => {
+    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_KEY },
+      body: JSON.stringify({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.4, maxOutputTokens: maxTokens, ...(thinking ? { thinkingConfig: thinking } : {}) },
+      }),
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    return { res, data: await res.json() };
+  };
+  const thinking = thinkingFor(model);
+  let { res, data } = await call(thinking);
+  if (!res.ok && res.status === 400 && thinking) ({ res, data } = await call(null));
+  if (!res.ok) throw new Error(data?.error?.message ?? `Gemini answered ${res.status}`);
+  const text = (data?.candidates?.[0]?.content?.parts ?? [])
+    .filter((p: { thought?: boolean }) => !p.thought)
+    .map((p: { text?: string }) => p.text ?? "").join("").trim();
+  if (!text) throw new Error("Gemini returned no text.");
+  return text;
 }
 
 // Only logged-in users of our app may use this function. We ask Supabase Auth
@@ -104,29 +138,39 @@ Deno.serve(async (req) => {
   }
 
   if (!GEMINI_KEY) return reply({ error: "GEMINI_API_KEY is not set in Supabase secrets." }, 503);
+
+  // Diagnosis for the team: which Flash models this key can use, and how fast
+  // each one answers a tiny question. (Sends no user data.)
+  if (body.diagnose) {
+    const res = await fetch("https://generativelanguage.googleapis.com/v1beta/models?pageSize=200", {
+      headers: { "x-goog-api-key": GEMINI_KEY }, signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    const data = await res.json();
+    const flash = (data?.models ?? [])
+      .filter((m: { name: string; supportedGenerationMethods?: string[] }) =>
+        /flash/.test(m.name) && (m.supportedGenerationMethods ?? []).includes("generateContent"))
+      .map((m: { name: string }) => m.name.replace("models/", ""));
+    const tried = [];
+    for (const model of [MODEL, ...(Array.isArray(body.try) ? body.try.slice(0, 3).map((x) => txt(x, 60)) : [])]) {
+      const t0 = Date.now();
+      try {
+        const answer = await generate(model, "Reply with the single word OK.", 64);
+        tried.push({ model, ok: true, ms: Date.now() - t0, answer: answer.slice(0, 20) });
+      } catch (error) {
+        tried.push({ model, ok: false, ms: Date.now() - t0, error: String(error instanceof Error ? error.message : error).slice(0, 200) });
+      }
+    }
+    return reply({ models: flash, tried });
+  }
   const summary = body.summary as Record<string, unknown> | undefined;
   if (!summary || typeof summary !== "object") return reply({ error: "Missing forecast summary." }, 400);
 
   const started = Date.now();
   try {
-    const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-goog-api-key": GEMINI_KEY },
-      body: JSON.stringify({
-        contents: [{ role: "user", parts: [{ text: buildPrompt(summary, txt(body.lang, 2)) }] }],
-        generationConfig: { temperature: 0.4, maxOutputTokens: 2048 },
-      }),
-      signal: AbortSignal.timeout(TIMEOUT_MS),
-    });
-    const data = await res.json();
-    if (!res.ok) {
-      return reply({ error: data?.error?.message ?? `Gemini answered ${res.status}`, ms: Date.now() - started }, 502);
-    }
-    const advice = (data?.candidates?.[0]?.content?.parts ?? [])
-      .map((p: { text?: string }) => p.text ?? "").join("").trim();
-    if (!advice) return reply({ error: "Gemini returned no text.", ms: Date.now() - started }, 502);
+    const advice = await generate(MODEL, buildPrompt(summary, txt(body.lang, 2)), 2048);
     return reply({ advice: advice.slice(0, 3000), model: MODEL, ms: Date.now() - started });
   } catch (error) {
-    return reply({ error: String(error), ms: Date.now() - started }, 504);
+    const message = error instanceof Error ? error.message : String(error);
+    return reply({ error: message, ms: Date.now() - started }, /timed? ?out|abort/i.test(message) ? 504 : 502);
   }
 });

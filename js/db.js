@@ -234,7 +234,7 @@ export async function clearMyData() {
 // ---------------------------------------------------------------------------
 // AI advice (Supabase Edge Function "ai-insights" -> Google Gemini API)
 // ---------------------------------------------------------------------------
-const AI_TIMEOUT_MS = 20000;
+const AI_TIMEOUT_MS = 30000;
 
 /** Ask the AI for advice. Returns {advice, model, ms}. Throws if the AI can't answer. */
 export async function askAI(summary, lang) {
