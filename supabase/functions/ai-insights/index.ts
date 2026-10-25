@@ -48,6 +48,7 @@ function buildPrompt(s: Record<string, unknown>, lang: string) {
     `Reply in ${lang === "ms" ? "Bahasa Melayu" : "simple English"}.`,
     "Give 3 or 4 short, practical tips as bullet points starting with '- '. Each tip must mention a real amount or date from the data.",
     "Focus on avoiding a cash shortage: what to chase, what to delay, how much is needed and by when.",
+    "Write dates like \"2 Nov\" and amounts like \"RM3,200\" (a shortfall as \"-RM2,168\").",
     "Do not invent numbers. Do not give legal, tax or investment advice. No greeting, no headings, no bold text.",
     "",
     `Today: ${txt(s.today, 10)}. Forecast length: ${num(s.days)} days.`,
