@@ -17,7 +17,7 @@ export const CODE_STATS = {
     },
     "TypeScript": {
       "files": 1,
-      "lines": 162
+      "lines": 163
     },
     "SQL": {
       "files": 2,

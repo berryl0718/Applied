@@ -40,5 +40,5 @@ If the AI test fails, the error message says why (key missing, function not depl
 
 ## Notes
 - The Gemini free tier has daily limits, which is plenty for a demo. On the free tier Google may use what is sent to improve its models, so the app only sends forecast numbers, dates and categories: no names, emails or bank details.
-- Optional: to choose a specific model, add a secret `GEMINI_MODEL` (for example `gemini-2.5-flash`). The default is `gemini-flash-latest`.
+- Optional: to choose a specific model, add a secret `GEMINI_MODEL` (for example `gemini-3.8-flash`). The default is `gemini-3.5-flash-lite`, which answers in about a second; the bigger Flash models were too slow on the free tier.
 - After changing code, run `node scripts/code-stats.mjs` so Code health shows the new line counts.

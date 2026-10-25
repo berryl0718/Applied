@@ -15,9 +15,10 @@
 // function -> Via Editor -> name it "ai-insights" -> paste this file -> Deploy.
 
 const GEMINI_KEY = Deno.env.get("GEMINI_API_KEY") ?? "";
-// "gemini-flash-latest" always points to Google's newest Flash model.
-// To pin a model, add a secret GEMINI_MODEL (for example "gemini-2.5-flash").
-const MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-flash-latest";
+// "Flash-Lite" answers short tips in about a second on the free tier (tested
+// 25 Oct 2026; the bigger Flash models took over 25 seconds). To use another
+// model, add a secret GEMINI_MODEL (for example "gemini-3.8-flash").
+const MODEL = Deno.env.get("GEMINI_MODEL") ?? "gemini-3.5-flash-lite";
 const TIMEOUT_MS = 25000;
 
 const CORS = {
