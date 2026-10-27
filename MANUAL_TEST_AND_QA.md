@@ -31,6 +31,9 @@ Open http://localhost:8000. The automatic tests are at http://localhost:8000/tes
 - [ ] Phone check (open the Vercel link on your phone): nothing scrolls sideways and the menu opens.
 - [ ] Language: click **BM** in the menu. Every page (menu, dashboard, forms, messages, dates like "27 Okt") is in Bahasa Melayu, and it stays in Malay on the next page and after logging out and in. Click **EN** to switch back. Your invoices, expenses and plan don't change.
 
+- [ ] **AI advice (v2.0):** with demo data loaded, click **Ask AI** on the dashboard. 3–4 tips appear with the tag "AI · gemini-3.5-flash-lite". In BM, the tips are in Malay.
+- [ ] **Admin (v2.0):** a normal account opening `/admin.html` sees "Admins only". An admin account sees the Admin Control Centre: System health all "Working", Security 11/11, Code health 39/39, and **Run live AI test** returns tips. Adding an invoice in another tab appears in the **Live log** within 5 seconds.
+
 ## Teacher questions and model answers
 1. **Why Vercel and Supabase?** Vercel hosts the web pages for free with a public https link and redeploys automatically on every GitHub push. Supabase gives us login, a real Postgres database and security rules for free, so we don't run our own server.
 2. **How do you stop one user seeing another's data?** Row Level Security in Supabase. Every table has a rule `user_id = auth.uid()`, so the database only returns or changes the logged-in user's rows. That holds even if someone edits the JavaScript in their browser.
@@ -39,7 +42,8 @@ Open http://localhost:8000. The automatic tests are at http://localhost:8000/tes
 5. **How is the forecast calculated?** Start with current cash. Each day, add invoices due that day and subtract expenses due that day; weekly and monthly ones repeat, and overdue invoices count as arriving today. The lowest balance is the low point, and any day below RM0 is a shortfall. Code: `buildForecast` in `js/cashflow.js`.
 6. **Why review uploaded files before using them?** A wrong file could quietly ruin the forecast. Rows wait in `import_rows` until the user ticks them, and likely duplicates start unticked.
 7. **How does the English / Bahasa Melayu switch work?** Every sentence is written in English inside `t("...")`. When BM is chosen, `t()` looks the sentence up in `js/i18n-ms.js` and shows the Malay version, falling back to English if one is missing. The choice is saved in the browser (`localStorage`). Only the screen text changes: saved data stays the same, so both languages share one database. An automatic test checks that every sentence has a translation.
-8. **Why is the app's low point (-RM2,168) different from the website's (-RM810)?** Same cash, income and end balance, but the website's demo uses its own assumptions (mainly that invoices are paid 3 days late), while the app expects them on the due date. The Scenarios page shows how late payments move the low point.
+8. **How does the AI work, and is the data safe?** The dashboard sends only the forecast numbers, dates and categories (no names, customer names or bank details) to our Supabase Edge Function. It checks the user is logged in, then calls the Google Gemini API with a secret key that never reaches the browser. If the AI fails or is slow, built-in rule-based tips are shown, so the feature never breaks. The forecast itself is calculated, not guessed by AI.
+9. **What can the admin see, and who can be an admin?** Users and plans, the live event log, system health, server details, API requests, security checks, backend details, test results and the release history. Admin rights can only be given in the Supabase SQL Editor, and every admin function checks admin status inside the database, so editing the app's code can't unlock it.
 
 ## Honest limits
-Payments, emails and team log-in are prototypes only. Forecasts are estimates, not financial advice.
+Payments, emails and team log-in are prototypes only. CSV import only (no PDF), and no payment reminders yet. Forecasts and AI tips are estimates, not financial advice. The Gemini free tier has daily limits.

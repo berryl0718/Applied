@@ -37,6 +37,10 @@ Owners and staff of Malaysian micro-SMEs. Each business owner has one account an
 3. **Demo data**: one click to load "Dapur Seri", a demo food seller in Petaling Jaya, to try the app.
 4. **English / Bahasa Melayu**: an **EN | BM** switch in the menu on every page. The choice is remembered in the browser.
 
+**Added in version 2.0 (after lecturer feedback on 20 Oct 2026):**
+5. **AI cash-flow advice**: an "Ask AI" button on the dashboard sends the forecast numbers (no names or bank details) to the Google Gemini API through a Supabase Edge Function, and shows 3–4 practical tips. If the AI is unavailable, built-in rule-based tips are shown instead.
+6. **Admin Control Centre** (team only): users and plans, live event log, system health, server details, API monitor, AI routing, security checks, backend details, automated test results and release history.
+
 ## 7. What data do we save?
 - **User** (Supabase Auth): email and password (Supabase stores the password safely).
 - **Profile**: business name, location, current cash (in sen), plan (free / basic / premium), when the Premium free trial started and ends, whether demo data is loaded.
@@ -45,12 +49,14 @@ Owners and staff of Malaysian micro-SMEs. Each business owner has one account an
 - **Upload**: file name, number of rows, status (pending review / done).
 - **Imported row** (waiting for review): type (income / expense), description, amount, date, status (pending / accepted / rejected).
 - **Team invite**: name, role (viewer / editor), invite code.
+- **Event log** (v2.0, admins only): what happened (sign-up, login, invoice added, AI request…), when, by which user, and a short detail. Written by the database itself.
+- **Admins** (v2.0): which accounts may open the Admin Control Centre.
 
 ## 8. Is data private or shared?
-Private. Every record belongs to one user, and nobody else can see or change it. There is no shared or public data.
+Private. Every record belongs to one user, and nobody else can see or change it. There is no shared or public data. Only team admins can see the admin overview and event log, and admin rights can only be given in the Supabase SQL Editor.
 
 ## 9. Pages we want
-Home (landing page with features and pricing), Sign up, Log in, Dashboard (forecast), Invoices (list, add, edit), Expenses (list, add, edit), Import documents (upload and review), Scenarios (Premium), Reports (Basic and Premium), Team (Premium), Settings (profile, current cash, plan, demo data).
+Home (landing page with features and pricing), Sign up, Log in, Dashboard (forecast), Invoices (list, add, edit), Expenses (list, add, edit), Import documents (upload and review), Scenarios (Premium), Reports (Basic and Premium), Team (Premium), Settings (profile, current cash, plan, demo data), Admin Control Centre (team admins only, v2.0).
 
 ## 10. Look and feel
 - Main colour: **#1d5bd6** (blue), with navy **#0b1f3a** and mint **#6ee7b7** as accents. These match our website.

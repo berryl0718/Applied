@@ -20,6 +20,30 @@ BFM3130 Entrepreneurship in FinTech · Tutorial 1, Group 4 · prototype, version
 - **Quality:** 39 automated tests (open `/tests/` on the live site to run them in the browser); 11 live security checks in the Admin Control Centre.
 - **Technology cost:** RM0 (Vercel, Supabase and Gemini free tiers, GitHub student account, no paid domain).
 
+## About our app
+
+**SME CashFlow** helps Malaysian micro-business owners see whether they will have enough cash for upcoming payments. It turns current cash, unpaid invoices and repeating expenses into a 7-, 30- or 90-day forecast, warns before a shortfall, and gives AI tips on what to do next.
+
+| Home page | Dashboard with demo data |
+|---|---|
+| ![Home page](docs/screenshots/1-home.png) | ![Dashboard](docs/screenshots/2-dashboard.png) |
+
+| AI cash-flow advice (Google Gemini) | On a phone |
+|---|---|
+| ![AI advice](docs/screenshots/3-ai-advice.png) | ![Phone](docs/screenshots/9-phone-dashboard.png) |
+
+**Admin Control Centre** (team admins only)
+
+| Overview and system health | AI & routing |
+|---|---|
+| ![Admin overview](docs/screenshots/4-admin-overview.png) | ![AI and routing](docs/screenshots/6-admin-ai-routing.png) |
+
+| Cyber security (11/11 live checks) | Live log |
+|---|---|
+| ![Security](docs/screenshots/7-admin-security.png) | ![Live log](docs/screenshots/8-admin-live-log.png) |
+
+*Screenshots use the demo business "Dapur Seri" and test accounts.*
+
 ---
 
 ## What the app does

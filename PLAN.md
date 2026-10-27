@@ -37,3 +37,13 @@ Functions: `start_premium_trial()`, `mark_invoice_paid()`, `accept_import()`, `c
 4. Overdue invoices are expected to be paid today in the forecast.
 5. CSV import: up to 256 KB and 200 rows per file. The Free plan allows 2 uploads a month. Imported expenses are one-off and use the "Other" category.
 6. Team invites are a demo: they create a code, but invited people can't log in yet.
+
+## Version 2.0: AI advice and Admin Control Centre (20 Oct 2026)
+Added after lecturer feedback that the app should show cyber security, admin, AI & routing, API, a live log, the release date and version, system health, code health, the server it runs on, and backend engineering.
+
+- **AI advice (Dashboard → "Ask AI"):** the browser sends a forecast summary (numbers, dates and categories only) to our **Supabase Edge Function** `ai-insights` (Deno/TypeScript). The function checks the user is logged in, then calls the **Google Gemini API** (`gemini-3.5-flash-lite`) with the secret key stored in Supabase Secrets, and returns 3–4 tips in English or Bahasa Melayu. If it fails or takes over 30 seconds, `ruleInsights()` in `js/insights.js` gives built-in tips instead. Every AI request is logged (ok or fallback).
+- **Admin Control Centre (`admin.html`):** 10 sections: Overview, System health, Server, API, AI & routing, Live log, Cyber security, Backend engineering, Code health, Releases. All data comes from admin-only database functions that check `is_admin()` inside the database.
+- **Database upgrade (`supabase/upgrade_admin_ai.sql`):** `admins` and `app_events` tables (no direct access for users), triggers that write the live log (sign-ups, logins, plan changes, invoices, expenses, uploads, invites), and the functions `admin_overview`, `admin_users`, `admin_events`, `admin_security`, `admin_backend`, `health_ping` and `log_ai_request`.
+- **Version and releases:** `js/version.js` (v2.0.0, 20 Oct 2026), shown in the footer and in the Admin Control Centre.
+- **Cost stays RM0:** Gemini free tier, and Edge Functions are included in the Supabase free plan.
+- Setup steps: `ADMIN_AND_AI_SETUP.md`.
