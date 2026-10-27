@@ -5,7 +5,7 @@
 cd path/to/sme-cashflow-web
 python3 -m http.server 8000
 ```
-Open http://localhost:8000. The automatic tests are at http://localhost:8000/tests/ (expect **29 passed**).
+Open http://localhost:8000. The automatic tests are at http://localhost:8000/tests/ (expect **39 passed**).
 
 ## Click-by-click test (tick each box), on the live Vercel link too
 - [ ] Home page shows the Dapur Seri demo (RM2,960, +RM12,722, RM4,082, Shortfall risk) and the three plans.

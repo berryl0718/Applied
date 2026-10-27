@@ -62,4 +62,4 @@ Home (landing page with features and pricing), Sign up, Log in, Dashboard (forec
 - Forecasts are estimates based on the numbers the user enters. They are **not** bookkeeping, tax or financial advice. Show this clearly.
 - Money is stored as whole **sen** (integers), never as decimals.
 - Dates use Malaysia time (UTC+8).
-- Required setup from our lecturer: **frontend and deployment on Vercel (free plan)**, **backend and database on Supabase (free plan)**, delivered as a **web app** people open in a browser through a link. No native mobile app.
+- Required setup from our lecturer: **frontend and deployment on Vercel (free plan)**, **backend and database on Supabase (free plan)**, delivered as an **app** people open in a browser through a link (it can be added to the phone home screen). No native mobile app.

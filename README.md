@@ -1,12 +1,24 @@
 # SME CashFlow
 
 **Know Your Cash Before It Runs Out.**
-A cash-flow forecasting web app for Malaysian micro-businesses (food sellers, small shops, service providers).
-BFM3130 Entrepreneurship in FinTech · group assignment prototype.
+A cash-flow forecasting app for Malaysian micro-businesses (food sellers, small shops, service providers).
+BFM3130 Entrepreneurship in FinTech · Tutorial 1, Group 4 · prototype, version 2.0.0 (20 Oct 2026).
 
-- **Frontend and hosting:** Vercel (free plan). The pages are plain HTML, CSS and JavaScript, so there is no build step.
-- **Backend and database:** Supabase (free plan). It handles login (email and password) and a Postgres database, with Row Level Security so every user only sees their own data.
-- **Format:** a web app that works in any browser, on laptops and phones, through one link.
+**Live app:** <https://smecashflow-two.vercel.app> (opens in any browser; on a phone it can be added to the home screen and opens like an app)
+
+### Try it in 2 minutes
+1. Open the link and click **Get Started**. Sign up with any email (choose **Premium** to start the 1-month free trial).
+2. Go to **Settings** and click **Load demo data** (a food seller, "Dapur Seri").
+3. On the **Dashboard**, see the 30-day forecast and the shortfall warning, then click **Ask AI** for AI cash-flow tips.
+4. Try **Invoices** (mark one as paid), **Scenarios** (customers pay 14 days late) and the **EN | BM** switch.
+
+### How it is built
+- **Frontend and hosting:** Vercel (free plan). Plain HTML, CSS and JavaScript, so there is no build step.
+- **Backend and database:** Supabase (free plan): login, a PostgreSQL database with Row Level Security (every user only sees their own data), database functions and triggers, and one Edge Function for AI.
+- **AI:** Google Gemini API (free tier), called only through our Edge Function so the API key stays secret. Only forecast numbers, dates and categories are sent. If the AI is unavailable, built-in rule-based tips are shown instead.
+- **Admin Control Centre** (`/admin.html`, team admins only): users and plans, live event log, system health, server, API monitor, AI routing, security checks, backend details, automated test results and release history.
+- **Quality:** 39 automated tests (open `/tests/` on the live site to run them in the browser); 11 live security checks in the Admin Control Centre.
+- **Technology cost:** RM0 (Vercel, Supabase and Gemini free tiers, GitHub student account, no paid domain).
 
 ---
 
@@ -27,6 +39,8 @@ BFM3130 Entrepreneurship in FinTech · group assignment prototype.
 | **English / Bahasa Melayu**: an **EN \| BM** switch in the menu on every page (remembered in the browser) | All |
 | **8% SST** on Basic (RM21.49/month incl. SST) and Premium (RM43.09/month incl. SST), with an order summary on the sign-up page | Basic, Premium |
 | **Guided onboarding** (RM49 one-time + 8% SST = RM52.92), chosen at sign-up | All |
+| **AI cash-flow advice**: "Ask AI" on the dashboard gives 3-4 tips from Google Gemini, in English or BM; built-in tips if the AI is unavailable | All |
+| **Admin Control Centre** for the team (see Version 2.0 below) | Admins only |
 
 Plans: **Free RM0**, **Basic RM19.90/month** (no trial), **Premium RM39.90/month** (first month free).
 This is a prototype, so no payment is ever taken and you can switch plans in Settings.
@@ -73,7 +87,7 @@ python3 -m http.server 8000
 ```
 Open <http://localhost:8000>, then register, go to **Settings**, click **Load demo data** and look at the dashboard. Stop the server with **Control + C**.
 
-Run the automatic tests: open <http://localhost:8000/tests/> while the server is running. You should see **29 passed, 0 failed**. If you have Node.js installed, you can also run `node tests/run.mjs`.
+Run the automatic tests: open <http://localhost:8000/tests/> while the server is running. You should see **39 passed, 0 failed**. If you have Node.js installed, you can also run `node tests/run.mjs`.
 
 ### Step 6: Put the code on GitHub
 1. On <https://github.com>, click **New repository**, name it `sme-cashflow`, leave it empty and click **Create repository**.
@@ -81,7 +95,7 @@ Run the automatic tests: open <http://localhost:8000/tests/> while the server is
    ```
    git init
    git add .
-   git commit -m "SME CashFlow web app"
+   git commit -m "SME CashFlow app"
    git branch -M main
    git remote add origin https://github.com/YOUR-USERNAME/sme-cashflow.git
    git push -u origin main
@@ -110,7 +124,7 @@ Open your Vercel link on your phone, register a new account, load the demo data 
 
 ```
 index.html, login.html, register.html, dashboard.html, invoices.html, expenses.html,
-import.html, scenarios.html, reports.html, team.html, settings.html, 404.html   ← the pages
+import.html, scenarios.html, reports.html, team.html, settings.html, admin.html, 404.html   ← the pages
 css/style.css            ← colours and layout (brand blue #1d5bd6, navy #0b1f3a, mint #6ee7b7)
 js/config.js             ← your Supabase URL and public key (Step 4)
 js/supabase-client.js    ← connects to Supabase
@@ -120,8 +134,14 @@ js/plans.js              ← plans, the free trial, the demo business (tested)
 js/ui.js                 ← menu (with the EN | BM switch), messages, safe HTML, the chart, the login check
 js/i18n.js               ← English / Bahasa Melayu: t("...") picks the chosen language
 js/i18n-ms.js            ← every Bahasa Melayu translation (English sentence -> Malay sentence)
-js/pages/*.js            ← one script per page
+js/insights.js           ← what is sent to the AI (numbers only) and the built-in backup tips (tested)
+js/api-monitor.js        ← records API requests for the Admin Control Centre
+js/version.js            ← version number and release history
+js/pages/*.js            ← one script per page (admin.js = Admin Control Centre)
 supabase/schema.sql      ← tables, security rules and database functions (Step 2)
+supabase/upgrade_admin_ai.sql          ← v2.0: admins, live event log (triggers), admin-only functions
+supabase/functions/ai-insights/index.ts ← v2.0: Edge Function that calls the Gemini API
+scripts/code-stats.mjs   ← counts files and lines for "Code health"
 tests/                   ← automatic tests (open /tests/ in the browser)
 vercel.json              ← security headers for Vercel
 ```
@@ -136,7 +156,7 @@ vercel.json              ← security headers for Vercel
 - Everything users type is escaped before it is shown, which blocks HTML or script injection.
 - Vercel sends a Content Security Policy and other security headers (`vercel.json`).
 
-**Honest limits (prototype):** no real payments, no emails for team invites, team members can't log in yet, and forecasts are estimates, not financial advice.
+**Honest limits (prototype):** no real payments, no emails for team invites, team members can't log in yet, CSV import only (no PDF), no payment reminders, and forecasts and AI tips are estimates, not financial advice.
 
 **Languages:** every sentence on screen is written in English inside `t("...")`, and `js/i18n-ms.js` holds its Malay version. The **EN | BM** button saves the choice in the browser and reloads the page. Saved data (categories, plans, what users type) is stored the same way in both languages, so switching never changes the database. A test fails if any sentence is missing its Malay translation. To change a translation, edit the right-hand text in `js/i18n-ms.js`.
 
