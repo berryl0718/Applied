@@ -1,0 +1,57 @@
+SME CashFlow - built.txt (list of dependencies)
+================================================
+Version 2.0.0 (20 Oct 2026). Live app: https://smecashflow-two.vercel.app
+
+There is nothing to install with npm or pip. The app is plain HTML, CSS and
+JavaScript, and its libraries load from the jsDelivr CDN at the exact versions
+below. The backend runs on Supabase and the AI on Google Gemini.
+
+
+1. FRONTEND LIBRARIES (loaded from https://cdn.jsdelivr.net, pinned versions)
+--------------------------------------------------------------------------
+@supabase/supabase-js   2.105.4   Login and database calls          (js/supabase-client.js)
+bootstrap               5.3.3     Layout, menus and components      (every .html page)
+bootstrap-icons         1.11.3    Icons                             (every .html page)
+chart.js                4.4.1     Forecast and scenario charts      (dashboard.html, scenarios.html)
+
+Fonts (Google Fonts): Plus Jakarta Sans, IBM Plex Mono
+
+
+2. BACKEND (Supabase, free plan)
+--------------------------------
+Supabase Auth                 Email and password login
+PostgreSQL 17                 Database, Row Level Security, functions and triggers
+                              (backend files: supabase/schema.sql, supabase/upgrade_admin_ai.sql)
+Supabase Edge Functions       Deno 2.1 runtime (TypeScript) for the AI function
+                              (supabase/functions/ai-insights/index.ts)
+Supabase Secrets              Stores GEMINI_API_KEY (never in the code)
+
+
+3. AI
+-----
+Google Gemini API             Model gemini-3.5-flash-lite, free tier
+                              Called only by the Edge Function, never from the browser
+
+
+4. HOSTING AND TOOLS
+--------------------
+Vercel (Hobby, free)          Hosts the frontend; deploys automatically from GitHub
+                              (security headers in vercel.json)
+GitHub                        Source code: https://github.com/berryl0718/Applied
+Visual Studio Code            Code editor
+GitHub Copilot                AI coding assistant (student account)
+
+
+5. FOR RUNNING AND TESTING ON YOUR OWN COMPUTER (optional)
+---------------------------------------------------------
+Python 3 (any recent version)   Local web server:  python3 -m http.server 8000
+Node.js 18 or newer             Automatic tests:   node tests/run.mjs   (39 tests)
+                                (or open http://localhost:8000/tests/ in a browser; no Node needed)
+A modern browser                Chrome, Safari, Edge or Firefox
+
+No other packages are needed.
+
+
+6. COST
+-------
+RM0. Every service above is used on a free or student plan.

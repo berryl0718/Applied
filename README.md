@@ -168,6 +168,8 @@ supabase/functions/ai-insights/index.ts ← v2.0: Edge Function that calls the G
 scripts/code-stats.mjs   ← counts files and lines for "Code health"
 tests/                   ← automatic tests (open /tests/ in the browser)
 vercel.json              ← security headers for Vercel
+built.txt                ← list of dependencies (libraries, services and versions)
+plan.txt                 ← system design and logic overview
 ```
 
 **How the forecast works:** start with today's cash. For each day, add the unpaid invoices due that day and subtract the expenses due that day. Weekly and monthly expenses repeat, and overdue invoices are expected today. The lowest balance is the "low point"; any day below RM0 is a shortfall. See `buildForecast` in `js/cashflow.js`.
